@@ -744,3 +744,13 @@ details.cond > .cond-body {
   padding: 0.75rem 1.1rem !important;
   margin: 0 0 0.9rem 0 !important;
 }
+/* 2026-10-07e ensure padded titles after HTML repair */
+details.cond > .cond-body { padding: 1.35rem 1.4rem 1.5rem 1.4rem !important; }
+.cond-body > h3 {
+  margin: 1.35rem 0 0.9rem !important;
+  padding: 0.75rem 1.1rem !important;
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 8px !important;
+  background: var(--bg-elev) !important;
+}
+.section-title { padding: 0.75rem 1.1rem !important; }
