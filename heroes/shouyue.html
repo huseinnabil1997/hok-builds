@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
@@ -27,10 +27,19 @@
 <a href="#kondisi-C">Kondisi C</a>
 
   </nav>
-<section class="cond" id="kondisi-A">
-  <h2><span class="badge kode">A</span> Kondisi A</h2>
-  <p class="kondisi">Crit snipe + anti-heal</p>
-  <p class="meta-line">Lane: <strong>Farm Lane</strong></p>
+  <div class="collapse-controls">
+    <button type="button" id="buka-semua">Buka semua</button>
+    <button type="button" id="tutup-semua">Tutup semua</button>
+  </div>
+<details class="cond" id="kondisi-A" open>
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">A</span> Kondisi A</span>
+    <span class="kondisi-preview">Crit snipe + anti-heal</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Farm Lane</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>11600</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -110,11 +119,17 @@
 </div></div>
 
   <div class="note">Hub B1; S16 nerf flagged<br/>Rules: AS/Crit caps; no double Sunder; no roaming; shared active CD</div>
-</section>
-<section class="cond" id="kondisi-B">
-  <h2><span class="badge kode">B</span> Kondisi B</h2>
-  <p class="kondisi">Crit snipe + execute</p>
-  <p class="meta-line">Lane: <strong>Farm Lane</strong></p>
+  </div>
+</details>
+<details class="cond" id="kondisi-B">
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">B</span> Kondisi B</span>
+    <span class="kondisi-preview">Crit snipe + execute</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Farm Lane</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>12060</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -169,11 +184,17 @@
 </div></div>
 
   <div class="note">Hub B2<br/>Rules: AS/Crit caps; no double Sunder; no roaming; shared active CD</div>
-</section>
-<section class="cond" id="kondisi-C">
-  <h2><span class="badge kode">C</span> Kondisi C</h2>
-  <p class="kondisi">vs dive / aim interrupt</p>
-  <p class="meta-line">Lane: <strong>Farm Lane</strong></p>
+  </div>
+</details>
+<details class="cond" id="kondisi-C">
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">C</span> Kondisi C</span>
+    <span class="kondisi-preview">vs dive / aim interrupt</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Farm Lane</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>11620</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -253,9 +274,11 @@
 </div></div>
 
   <div class="note">Getaway only escape<br/>Rules: AS/Crit caps; no double Sunder; no roaming; shared active CD</div>
-</section>
+  </div>
+</details>
 
 </main>
 <footer class="app-footer">Sumber sheet: builds/farmlane/heroes/shouyue/</footer>
+  <script src="../js/collapse.js"></script>
 </body>
 </html>

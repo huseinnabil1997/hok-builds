@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
@@ -27,10 +27,19 @@
 <a href="#kondisi-C">Kondisi C</a>
 
   </nav>
-<section class="cond" id="kondisi-A">
-  <h2><span class="badge kode">A</span> Kondisi A</h2>
-  <p class="kondisi">Board poke</p>
-  <p class="meta-line">Lane: <strong>Mid MAIN</strong></p>
+  <div class="collapse-controls">
+    <button type="button" id="buka-semua">Buka semua</button>
+    <button type="button" id="tutup-semua">Tutup semua</button>
+  </div>
+<details class="cond" id="kondisi-A" open>
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">A</span> Kondisi A</span>
+    <span class="kondisi-preview">Board poke</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Mid MAIN</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>11650</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -97,11 +106,17 @@
 </div></div>
 
   <div class="note">Board poke<br/>Rules: No roaming; CDR 40%</div>
-</section>
-<section class="cond" id="kondisi-B">
-  <h2><span class="badge kode">B</span> Kondisi B</h2>
-  <p class="kondisi">Anti-dive checkmate</p>
-  <p class="meta-line">Lane: <strong>Mid MAIN</strong></p>
+  </div>
+</details>
+<details class="cond" id="kondisi-B">
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">B</span> Kondisi B</span>
+    <span class="kondisi-preview">Anti-dive checkmate</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Mid MAIN</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>11120</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -170,11 +185,17 @@
 </div></div>
 
   <div class="note">Moonguard<br/>Rules: No roaming; CDR 40%</div>
-</section>
-<section class="cond" id="kondisi-C">
-  <h2><span class="badge kode">C</span> Kondisi C</h2>
-  <p class="kondisi">Anti-heal board</p>
-  <p class="meta-line">Lane: <strong>Mid MAIN</strong></p>
+  </div>
+</details>
+<details class="cond" id="kondisi-C">
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">C</span> Kondisi C</span>
+    <span class="kondisi-preview">Anti-heal board</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Mid MAIN</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>11080</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -241,9 +262,11 @@
 </div></div>
 
   <div class="note">Imperil<br/>Rules: No roaming; CDR 40%</div>
-</section>
+  </div>
+</details>
 
 </main>
 <footer class="app-footer">Sumber sheet: builds/wheels/heroes/yixing/</footer>
+  <script src="../js/collapse.js"></script>
 </body>
 </html>

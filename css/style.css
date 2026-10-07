@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg:#0f1419; --card:#1a2332; --text:#e7ecf3; --muted:#9aa7b8; --accent:#5b9fd4;
   --ok:#3dba7a; --warn:#e0a84a; --border:#2a3648; --merah:#c45c5c; --biru:#5b9fd4;
   --hijau:#3dba7a; --farm:#e0a84a; --wheels:#8b7cf6; --mid:#c9a227;
@@ -72,3 +72,82 @@ footer.app-footer{color:var(--muted);font-size:.8rem;text-align:center;padding:1
 .toc{display:flex;flex-wrap:wrap;gap:.4rem;margin:.75rem 0 1.25rem}
 .toc a{font-size:.85rem;padding:.25rem .65rem;border:1px solid var(--border);border-radius:6px;background:#121a24}
 .toc a:hover{border-color:var(--accent);text-decoration:none}
+
+/* --- collapsible conditions --- */
+details.cond {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+details.cond[open] {
+  border-color: rgba(91,159,212,.45);
+}
+.cond-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem .65rem;
+  padding: .85rem 1.05rem;
+  user-select: none;
+  background: #121a24;
+}
+.cond-summary::-webkit-details-marker { display: none; }
+.cond-summary::marker { content: ''; }
+.cond-summary .chev {
+  display: inline-flex;
+  width: 1.35rem; height: 1.35rem;
+  align-items: center; justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-size: .85rem;
+  transition: transform .15s ease;
+  flex: 0 0 auto;
+}
+details.cond[open] > .cond-summary .chev {
+  transform: rotate(90deg);
+}
+.cond-summary .sum-title {
+  font-weight: 650;
+  font-size: 1.05rem;
+}
+.cond-summary .kondisi-preview {
+  color: var(--muted);
+  font-size: .88rem;
+  flex: 1 1 160px;
+}
+.cond-summary .hint {
+  color: var(--muted);
+  font-size: .78rem;
+  margin-left: auto;
+}
+details.cond[open] > .cond-summary .hint::after { content: 'Sembunyikan'; }
+details.cond:not([open]) > .cond-summary .hint::after { content: 'Tampilkan'; }
+.cond-body {
+  padding: .35rem 1.1rem 1.05rem;
+  border-top: 1px solid var(--border);
+}
+.collapse-controls {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+  margin: 0 0 .85rem;
+}
+.collapse-controls button {
+  background: #121a24;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: .35rem .75rem;
+  cursor: pointer;
+  font-size: .85rem;
+}
+.collapse-controls button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+/* legacy section.cond rules overridden for details */
+section.cond { /* keep for safety if any remain */ }

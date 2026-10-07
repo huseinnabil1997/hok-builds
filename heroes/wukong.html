@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
@@ -27,10 +27,19 @@
 <a href="#kondisi-C">Kondisi C</a>
 
   </nav>
-<section class="cond" id="kondisi-A">
-  <h2><span class="badge kode">A</span> Kondisi A</h2>
-  <p class="kondisi">Crit burst backline</p>
-  <p class="meta-line">Lane: <strong>Jungle MAIN</strong></p>
+  <div class="collapse-controls">
+    <button type="button" id="buka-semua">Buka semua</button>
+    <button type="button" id="tutup-semua">Tutup semua</button>
+  </div>
+<details class="cond" id="kondisi-A" open>
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">A</span> Kondisi A</span>
+    <span class="kondisi-preview">Crit burst backline</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Jungle MAIN</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>11100</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -98,11 +107,17 @@
 </div></div>
 
   <div class="note">Hub Popular crit<br/>Rules: Jungle item; Smite; CDR 40%</div>
-</section>
-<section class="cond" id="kondisi-B">
-  <h2><span class="badge kode">B</span> Kondisi B</h2>
-  <p class="kondisi">ASHP grind front</p>
-  <p class="meta-line">Lane: <strong>Jungle MAIN</strong></p>
+  </div>
+</details>
+<details class="cond" id="kondisi-B">
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">B</span> Kondisi B</span>
+    <span class="kondisi-preview">ASHP grind front</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Jungle MAIN</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>11100</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -155,11 +170,17 @@
 </div></div>
 
   <div class="note">Hub Popular Fate<br/>Rules: Jungle item; Smite; CDR 40%</div>
-</section>
-<section class="cond" id="kondisi-C">
-  <h2><span class="badge kode">C</span> Kondisi C</h2>
-  <p class="kondisi">Anti-heal gank</p>
-  <p class="meta-line">Lane: <strong>Jungle MAIN</strong></p>
+  </div>
+</details>
+<details class="cond" id="kondisi-C">
+  <summary class="cond-summary">
+    <span class="chev" aria-hidden="true">&#9654;</span>
+    <span class="sum-title"><span class="badge kode">C</span> Kondisi C</span>
+    <span class="kondisi-preview">Anti-heal gank</span>
+    <span class="hint"></span>
+  </summary>
+  <div class="cond-body">
+<p class="meta-line">Lane: <strong>Jungle MAIN</strong></p>
   <p class="meta-line">Gold total 6 aktif: <strong>11070</strong></p>
   <h3>Proses craft / Urutan beli</h3>
   <p class="source-hint">Sumber: sheet build.md · 12 preset (inline) · label <strong>Setengah jadi</strong> = komponen/mid · <strong>Aktif</strong> = item final</p>
@@ -227,9 +248,11 @@
 </div></div>
 
   <div class="note">Imperil clear/gank<br/>Rules: Jungle item; Smite; CDR 40%</div>
-</section>
+  </div>
+</details>
 
 </main>
 <footer class="app-footer">Sumber sheet: builds/wheels/heroes/wukong/</footer>
+  <script src="../js/collapse.js"></script>
 </body>
 </html>
