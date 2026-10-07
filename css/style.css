@@ -151,3 +151,96 @@ details.cond:not([open]) > .cond-summary .hint::after { content: 'Tampilkan'; }
 }
 /* legacy section.cond rules overridden for details */
 section.cond { /* keep for safety if any remain */ }
+
+/* Proses craft — clean responsive grid (site-wide) */
+.craft-flow {
+  counter-reset: craftstep;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 0.65rem;
+  align-items: stretch;
+  margin: 0.35rem 0 0.75rem;
+}
+.craft-arrow {
+  display: none; /* arrows break messy on wrap; step numbers replace them */
+}
+.craft-piece {
+  counter-increment: craftstep;
+  background: #121a24;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.45rem 0.55rem;
+  width: auto;
+  min-height: 132px;
+  text-align: center;
+  font-size: 0.72rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.craft-piece::before {
+  content: counter(craftstep);
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  background: #0a0e14;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.craft-piece.role-setengah {
+  border-color: rgba(201,162,39,.55);
+  box-shadow: inset 0 0 0 1px rgba(201,162,39,.12);
+}
+.craft-piece.role-aktif {
+  border-color: rgba(61,186,122,.55);
+  box-shadow: inset 0 0 0 1px rgba(61,186,122,.12);
+}
+.craft-piece .role-tag {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0.15rem 0 0.35rem;
+  text-transform: uppercase;
+}
+.craft-piece.role-setengah .role-tag { color: var(--mid); }
+.craft-piece.role-aktif .role-tag { color: var(--ok); }
+.craft-piece img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 0.35rem;
+  background: #0a0e14;
+  border-radius: 6px;
+}
+.craft-piece .iname {
+  word-break: break-word;
+  line-height: 1.25;
+  margin-top: auto;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.25rem 0 0.65rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.cond-body {
+  overflow-x: hidden;
+}
+.cond-body .source-hint {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
