@@ -88,8 +88,6 @@ header.app-header .sub { margin: 0; color: var(--muted); font-size: .88rem; }
 .badge.kode { background: #121a24; color: var(--accent); border: 1px solid var(--border); }
 .hidden { display: none !important; }
 .empty-msg { color: var(--muted); text-align: center; padding: 2rem; }
-
-/* hero page */
 .back { display: inline-block; margin-bottom: .75rem; font-size: .9rem; }
 .cond {
   background: var(--card);
@@ -116,13 +114,13 @@ header.app-header .sub { margin: 0; color: var(--muted); font-size: .88rem; }
   text-align: center;
   font-size: .75rem;
 }
-.item-slot img, .arcana-slot img {
+.item-slot img, .arcana-slot img, .buy-piece img {
   width: 56px; height: 56px; object-fit: contain;
   display: block; margin: 0 auto .35rem;
   background: #0a0e14; border-radius: 6px;
 }
 .item-slot .slot-no { color: var(--muted); font-size: .7rem; }
-.item-slot .iname, .arcana-slot .aname { word-break: break-word; line-height: 1.25; }
+.item-slot .iname, .arcana-slot .aname, .buy-piece .iname { word-break: break-word; line-height: 1.25; }
 .arcana-slot .count {
   display: block; font-weight: 700; color: var(--ok); margin-top: .15rem;
 }
@@ -150,6 +148,33 @@ header.app-header .sub { margin: 0; color: var(--muted); font-size: .88rem; }
   background: #2a1820; border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
   color: var(--warn); font-size: .65rem;
+}
+.buy-list { display: flex; flex-direction: column; gap: .55rem; }
+.buy-step {
+  display: flex; align-items: flex-start; gap: .65rem;
+  background: #121a24; border: 1px solid var(--border); border-radius: 8px;
+  padding: .55rem .7rem;
+}
+.buy-num {
+  flex: 0 0 auto;
+  width: 1.6rem; height: 1.6rem;
+  border-radius: 999px; background: #0a0e14; border: 1px solid var(--accent);
+  color: var(--accent); font-weight: 700; font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: .35rem;
+}
+.buy-chain {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .45rem;
+}
+.buy-piece {
+  width: 100px; text-align: center; font-size: .72rem;
+}
+.buy-arrow {
+  color: var(--accent); font-weight: 700; font-size: 1.1rem; padding: 0 .15rem;
+  align-self: center;
+}
+.buy-raw {
+  margin: .35rem 0 0; color: var(--muted); font-size: .78rem;
 }
 footer.app-footer {
   color: var(--muted); font-size: .8rem; text-align: center;

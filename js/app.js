@@ -5,9 +5,7 @@
   const empty = document.getElementById('kosong');
   const filterBtns = document.querySelectorAll('[data-filter]');
   if (!q || !grid) return;
-
   let laneFilter = 'all';
-
   function apply() {
     const term = (q.value || '').trim().toLowerCase();
     const cards = grid.querySelectorAll('.hero-card');
@@ -25,7 +23,6 @@
     if (countEl) countEl.textContent = shown + ' hero ditampilkan';
     if (empty) empty.classList.toggle('hidden', shown > 0);
   }
-
   q.addEventListener('input', apply);
   filterBtns.forEach(function (btn) {
     btn.addEventListener('click', function () {
