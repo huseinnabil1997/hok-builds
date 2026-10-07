@@ -1,12 +1,5 @@
-﻿# HoK S16 Build Site (lokal)
+﻿# HoK S16 Build Site
 
-Buka: index.html
+Proses craft menampilkan item **setengah jadi** (komponen/mid) dan **aktif** dari sheet `build.md` (12 preset) bila ada; fallback `buy_order_singkat` di CSV.
 
-## Preview cepat
-- Double-click index.html (file://) - pencarian & link antar halaman berfungsi offline.
-- Atau dari PowerShell di folder site:
-  python -m http.server 8080
-  lalu buka http://localhost:8080/
-
-Sumber build: ../builds/farmlane + ../builds/wheels (Clash tidak disertakan).
-Tiap kondisi menampilkan Proses/Urutan beli (buy_order_singkat), Item aktif, dan Arcana.
+Buka index.html atau https://huseinnabil1997.github.io/hok-builds/
