@@ -796,3 +796,53 @@ details.cond > .cond-body { padding: 1.35rem 1.4rem 1.5rem 1.4rem !important; }
 }
 .aktif-slot .iname { line-height: 1.3; word-break: break-word; margin-top: auto; color: var(--text); }
 /* === end Item aktif === */
+
+/* === New-hero states === */
+.badge.situasional { background: rgba(91,159,212,0.14); color: var(--accent); border: 1px solid rgba(91,159,212,0.4); }
+.badge.kosong { background: transparent; color: var(--muted); border: 1px dashed var(--border); }
+.craft-piece.role-situasional { border-color: rgba(91,159,212,0.45); box-shadow: inset 0 0 0 1px rgba(91,159,212,0.08); }
+.craft-piece.role-situasional .role-tag { color: var(--accent); }
+.craft-piece.role-kosong {
+  border: 1px dashed var(--border);
+  background: repeating-linear-gradient(135deg, transparent 0 8px, rgba(255,255,255,0.025) 8px 16px), var(--bg-elev);
+  box-shadow: none;
+  opacity: 0.85;
+}
+.craft-piece.role-kosong:hover { transform: none; border-color: var(--border); }
+.craft-piece.role-kosong .role-tag { color: var(--muted); }
+.craft-piece.role-kosong .iname { color: var(--muted); font-style: italic; }
+.empty-slot {
+  width: 58px; height: 58px; margin: 0 auto 0.45rem;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px dashed var(--border); border-radius: 8px;
+  color: var(--muted); font-size: 1.1rem; background: transparent;
+}
+.data-note {
+  margin: 0 0 1.1rem;
+  padding: 1rem 1.15rem 0.9rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--radius);
+}
+.data-note .section-title { margin-top: 0; }
+.data-note .data-status { margin: 0 0 0.6rem; color: var(--text); font-size: 0.9rem; line-height: 1.5; }
+.data-note .data-sub { margin: 0.6rem 0 0.35rem; font-size: 0.85rem; color: var(--warn); text-transform: uppercase; letter-spacing: 0.04em; }
+.data-note .gap-list { margin: 0; padding-left: 1.2rem; color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
+.data-note .gap-list li { margin: 0.2rem 0; }
+.spell-panel .spell-none { margin: 0.2rem 0 0.4rem; color: var(--muted); font-size: 0.86rem; font-style: italic; }
+.spell-panel .spell-note { margin: 0.9rem 0 0; padding: 0.6rem 0.8rem; background: var(--bg-elev); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
+.sit-list { display: grid; gap: 0.55rem; margin: 0 0 0.35rem; }
+.sit-item {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg-elev);
+  border: 1px solid rgba(91,159,212,0.3);
+  border-radius: var(--radius-sm);
+}
+.sit-item img { width: 44px; height: 44px; flex: 0 0 44px; object-fit: contain; padding: 0.2rem; background: #0a0e14; border: 1px solid var(--border-soft); border-radius: 8px; }
+.sit-text { min-width: 0; }
+.sit-name { font-weight: 600; font-size: 0.86rem; color: var(--text); }
+.sit-gold { font-weight: 500; font-size: 0.74rem; color: var(--warn); margin-left: 0.35rem; }
+.sit-when { font-size: 0.8rem; color: var(--muted); line-height: 1.45; margin-top: 0.15rem; }
+/* === end New-hero states === */
