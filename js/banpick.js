@@ -74,7 +74,7 @@
       build = '<div class="bp-build"><div class="bp-build-label">Build utama (Kondisi ' + esc(h.build.kondisi) + ": " + esc(h.build.label) + ')</div><div class="bp-items">' +
         h.build.items.map(function (it) { return '<div class="bp-item" title="' + esc(it.name) + '"><img src="assets/items/' + encodeURI(it.file) + '" alt="' + esc(it.name) + '" loading="lazy"/><span>' + esc(it.name) + "</span></div>"; }).join("") + "</div></div>";
     } else {
-      build = '<div class="bp-build bp-nobuild">Build belum tersedia</div>';
+      build = '<div class="bp-build bp-nobuild">' + (h.nobuild === "clash" ? "Lane utama Clash, build tidak dibuat" : "Build belum tersedia") + "</div>";
     }
     var title = h.page ? '<a href="heroes/' + k + '.html">' + esc(h.name) + "</a>" : esc(h.name);
     return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + '</span></div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + build + (h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>' : "") + "</article>";
