@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ban &amp; Pick - HoK S16</title>
+<link rel="stylesheet" href="css/style.css?v=20261010a"/>
+</head>
+<body>
+<header class="app-header">
+  <h1>Ban &amp; Pick</h1>
+  <p class="sub">Rekomendasi pick &amp; ban dari data counter / sinergi | Global Season 16</p>
+  <nav class="top-nav"><a href="index.html">Daftar hero</a><a href="banpick.html" class="active">Ban &amp; Pick</a></nav>
+</header>
+<main class="wrap bp-wrap">
+  <section class="bp-inputs">
+    <div class="bp-field" data-list="ban">
+      <label for="in-ban">Hero di-ban</label>
+      <div class="chip-box"><div class="chips" id="chips-ban"></div><input id="in-ban" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-ban"></ul>
+    </div>
+    <div class="bp-field" data-list="ally">
+      <label for="in-ally">Hero tim kita</label>
+      <div class="chip-box"><div class="chips" id="chips-ally"></div><input id="in-ally" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-ally"></ul>
+    </div>
+    <div class="bp-field" data-list="enemy">
+      <label for="in-enemy">Hero musuh</label>
+      <div class="chip-box"><div class="chips" id="chips-enemy"></div><input id="in-enemy" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-enemy"></ul>
+    </div>
+    <div class="bp-actions"><button type="button" id="bp-reset">Reset semua</button><span class="bp-msg" id="bp-msg"></span></div>
+  </section>
+
+  <section class="bp-formula">
+    <h2 class="section-title">Cara hitung skor</h2>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <h3>Skor pick (kandidat K)</h3>
+        <p class="formula">Skor = &Sigma; Counter(K &rarr; musuh) &minus; &Sigma; Counter(musuh &rarr; K) + &Sigma; Duo(K, tim kita) + &Sigma; Trio(K, tim kita)</p>
+      </div>
+      <div class="formula-card">
+        <h3>Skor ban (kandidat K)</h3>
+        <p class="formula">Skor = &Sigma; Counter(K &rarr; tim kita) + &Sigma; Duo(K, musuh) + &Sigma; Trio(K, musuh)</p>
+      </div>
+    </div>
+    <ul class="formula-notes">
+      <li><strong>Counter(A &rarr; B)</strong> = <code>counter_index</code> jika B ada di daftar <em>Counter</em> milik A, atau A ada di daftar <em>Di-counter</em> milik B. Kalau tercatat di dua daftar, dipakai nilai terbesar (dihitung sekali).</li>
+      <li><strong>Duo(A, B)</strong> = <code>synergy_index</code> duo antara A dan B (dari daftar duo A atau B, nilai terbesar, sekali).</li>
+      <li><strong>Trio</strong> = <code>synergy_index</code> trio yang memuat K: penuh (&times;1) jika dua anggota lain sudah ada di tim, &times;0,5 jika baru satu anggota. Setiap kombinasi trio dihitung sekali (nilai terbesar jika tercatat lebih dari sekali).</li>
+      <li>Semua angka diambil apa adanya dari data. Tidak ada bobot tambahan atau angka karangan. Hero yang sudah di-ban / di-pick tidak direkomendasikan.</li>
+      <li>Flowborn: entri data &quot;Flowborn&quot; tanpa varian dicocokkan ke semua varian (Flowborn, Marksman, Assassin, Roamer, Tank).</li>
+    </ul>
+    <div class="note bp-cn-note"><strong>Catatan data:</strong> angka index (counter / sinergi), win rate, dan pick rate kemungkinan besar berasal dari data server CN, jadi rekomendasi ini mengikuti meta CN dan bisa berbeda dengan Global. Data juga tidak punya skor index per hero, jadi skor hanya dari counter dan sinergi terhadap hero yang dipilih. Hero yang hanya ada di CN tidak ditampilkan.</div>
+  </section>
+
+  <section class="bp-results">
+    <div class="bp-col">
+      <h2 class="section-title">Rekomendasi pick</h2>
+      <div id="out-pick" class="bp-list"></div>
+    </div>
+    <div class="bp-col">
+      <h2 class="section-title">Rekomendasi ban</h2>
+      <div id="out-ban" class="bp-list"></div>
+    </div>
+  </section>
+</main>
+<footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
+<script src="data/banpick.js?v=20261010a"></script>
+<script src="js/banpick.js?v=20261010a"></script>
+</body>
+</html>
