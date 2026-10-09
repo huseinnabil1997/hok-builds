@@ -70,14 +70,15 @@
     var h = H[k];
     var parts = sc.parts.map(function (p) { return '<li class="' + p.cls + '"><span>' + esc(p.t) + '</span><b>' + (p.v > 0 ? "+" : "") + fmt(p.v) + "</b></li>"; }).join("");
     var build;
-    if (h.page && h.build && h.build.items.length) {
-      build = '<div class="bp-build"><div class="bp-build-label">Build utama (Kondisi ' + esc(h.build.kondisi) + ": " + esc(h.build.label) + ')</div><div class="bp-items">' +
-        h.build.items.map(function (it) { return '<div class="bp-item" title="' + esc(it.name) + '"><img src="assets/items/' + encodeURI(it.file) + '" alt="' + esc(it.name) + '" loading="lazy"/><span>' + esc(it.name) + "</span></div>"; }).join("") + "</div></div>";
+    if (h.core && h.core.length) {
+      build = '<div class="bp-build"><div class="bp-build-label">Item core (data Ban &amp; Pick)</div><div class="bp-items bp-core">' +
+        h.core.map(function (it) { return '<div class="bp-item" title="' + esc(it.name) + (it.wr ? " | WR " + esc(it.wr) + " | PR " + esc(it.pr) : "") + '"><img src="assets/items/' + encodeURI(it.file) + '" alt="' + esc(it.name) + '" loading="lazy"/><span>' + esc(it.name) + "</span>" + (it.wr ? '<small>WR ' + esc(it.wr) + "</small>" : "") + "</div>"; }).join("") + "</div></div>";
     } else {
-      build = '<div class="bp-build bp-nobuild">' + (h.nobuild === "clash" ? "Lane utama Clash, build tidak dibuat" : "Build belum tersedia") + "</div>";
+      build = '<div class="bp-build bp-nobuild">Item core tidak ada di data</div>';
     }
+    var foot = h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>' : (h.nobuild === "clash" ? '<div class="bp-clash">Lane utama Clash, build lengkap tidak dibuat</div>' : "");
     var title = h.page ? '<a href="heroes/' + k + '.html">' + esc(h.name) + "</a>" : esc(h.name);
-    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + '</span></div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + build + (h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>' : "") + "</article>";
+    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + '</span></div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + build + foot + "</article>";
   }
 
   function render() {

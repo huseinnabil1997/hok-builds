@@ -867,6 +867,11 @@ details.cond > .cond-body { padding: 1.35rem 1.4rem 1.5rem 1.4rem !important; }
 .bp-link { display: inline-block; margin-top: 0.65rem; font-size: 0.8rem; color: var(--accent); text-decoration: none; }
 .bp-link:hover { text-decoration: underline; }
 @media (max-width: 560px) { .bp-items { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.bp-items.bp-core { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bp-core .bp-item img { width: 46px; height: 46px; }
+.bp-core .bp-item span { font-size: 0.72rem; color: var(--text); }
+.bp-core .bp-item small { font-size: 0.64rem; color: var(--ok); }
+.bp-clash { margin-top: 0.65rem; font-size: 0.78rem; color: var(--warn); font-style: italic; }
 /* === end Ban & Pick === */
 
 /* === New-hero states === */
