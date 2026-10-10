@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Ban &amp; Pick - HoK S16</title>
-<link rel="stylesheet" href="css/style.css?v=20261010d"/>
+<link rel="stylesheet" href="css/style.css?v=20261010e"/>
 </head>
 <body>
 <header class="app-header">
@@ -49,14 +49,15 @@
       <li><strong>Duo(A, B)</strong> = <code>synergy_index</code> duo antara A dan B (dari daftar duo A atau B, nilai terbesar, sekali).</li>
       <li><strong>Trio</strong> = <code>synergy_index</code> trio yang memuat K: penuh (&times;1) jika dua anggota lain sudah ada di tim, &times;0,5 jika baru satu anggota. Setiap kombinasi trio dihitung sekali (nilai terbesar jika tercatat lebih dari sekali).</li>
       <li>Semua angka diambil apa adanya dari data. Tidak ada bobot tambahan atau angka karangan. Hero yang sudah di-ban / di-pick tidak direkomendasikan.</li>
-      <li>Flowborn: entri data &quot;Flowborn&quot; tanpa varian dicocokkan ke semua varian (Flowborn, Marksman, Assassin, Roamer, Tank).</li>
+      <li>Flowborn: data v2 menulis Flowborn per varian; entri lama &quot;Flowborn&quot; tanpa varian (jika masih ada) dicocokkan ke semua varian.</li>
+      <li>Hero Clash = hero dengan lane <em>hanya</em> Clash Lane di data. Hero lane campuran (mis. Jungle/Clash Lane) bukan Clash di sini. Toggle &quot;Sembunyikan hero Clash&quot; hanya berlaku untuk rekomendasi pick; rekomendasi ban tetap memuat hero Clash.</li>
     </ul>
     <div class="note bp-cn-note"><strong>Catatan data:</strong> angka index (counter / sinergi), win rate, dan pick rate kemungkinan besar berasal dari data server CN, jadi rekomendasi ini mengikuti meta CN dan bisa berbeda dengan Global. Data juga tidak punya skor index per hero, jadi skor hanya dari counter dan sinergi terhadap hero yang dipilih. Hero yang hanya ada di CN tidak ditampilkan.</div>
   </section>
 
   <section class="bp-results">
     <div class="bp-col">
-      <h2 class="section-title">Rekomendasi pick</h2>
+      <div class="bp-col-head"><h2 class="section-title">Rekomendasi pick</h2><label class="bp-toggle"><input type="checkbox" id="hide-clash" checked/> Sembunyikan hero Clash</label></div>
       <div id="out-pick" class="bp-list"></div>
     </div>
     <div class="bp-col">
@@ -66,7 +67,7 @@
   </section>
 </main>
 <footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
-<script src="data/banpick.js?v=20261010d"></script>
-<script src="js/banpick.js?v=20261010d"></script>
+<script src="data/banpick.js?v=20261010e"></script>
+<script src="js/banpick.js?v=20261010e"></script>
 </body>
 </html>

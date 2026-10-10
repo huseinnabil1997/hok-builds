@@ -66,6 +66,19 @@
 
   function taken() { return state.ban.concat(state.ally, state.enemy); }
 
+  function plan(p, main) {
+    var rows = p.a.map(function (a) { return '<div class="bp-arc" title="' + esc(a.name) + " x" + a.n + '"><img src="assets/arcana/' + encodeURI(a.file) + '" alt="' + esc(a.name) + '" loading="lazy"/><span>' + esc(a.name) + '</span><b>x' + a.n + "</b></div>"; }).join("");
+    var meta = '<span class="bp-arc-meta">' + (p.pr ? "PR " + esc(p.pr) : "") + (p.wr ? " | WR " + esc(p.wr) : "") + " | total " + p.total + "</span>";
+    var trunc = p.total < 30 ? '<span class="bp-arc-trunc">Total &lt; 30, data mungkin terpotong</span>' : "";
+    return '<div class="bp-arc-plan' + (main ? " main" : "") + '"><div class="bp-arc-row">' + rows + "</div>" + meta + trunc + "</div>";
+  }
+  function arcanaBlock(h) {
+    if (!h.arcana || !h.arcana.length) return '<div class="bp-build bp-nobuild">Arcana tidak ada di data</div>';
+    var html = '<div class="bp-arcana"><div class="bp-build-label">Arcana (plan 1 dari ' + h.arcana.length + ")</div>" + plan(h.arcana[0], true);
+    if (h.arcana.length > 1) html += '<details class="bp-arc-more"><summary>Plan lain (' + (h.arcana.length - 1) + ")</summary>" + h.arcana.slice(1).map(function (p, i) { return '<div class="bp-arc-label">Plan ' + (i + 2) + "</div>" + plan(p, false); }).join("") + "</details>";
+    return html + "</div>";
+  }
+
   function card(k, sc, rank) {
     var h = H[k];
     var parts = sc.parts.map(function (p) { return '<li class="' + p.cls + '"><span>' + esc(p.t) + '</span><b>' + (p.v > 0 ? "+" : "") + fmt(p.v) + "</b></li>"; }).join("");
@@ -76,9 +89,11 @@
     } else {
       build = '<div class="bp-build bp-nobuild">Item core tidak ada di data</div>';
     }
-    var foot = h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>' : (h.nobuild === "clash" ? '<div class="bp-clash">Lane utama Clash, build lengkap tidak dibuat</div>' : "");
+    build += arcanaBlock(h);
+    var foot = h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>'
+      : (h.nobuild === "clash" ? '<div class="bp-clash">Lane utama Clash, build lengkap tidak dibuat</div>' : '<div class="bp-pending">Build belum tersedia</div>');
     var title = h.page ? '<a href="heroes/' + k + '.html">' + esc(h.name) + "</a>" : esc(h.name);
-    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + '</span></div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + build + foot + "</article>";
+    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (h.clash ? '<span class="badge clash">Clash</span>' : "") + '</div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + build + foot + "</article>";
   }
 
   function render() {
@@ -94,7 +109,8 @@
       rows.sort(function (a, b) { return b.s.total - a.s.total || nm(a.k).localeCompare(nm(b.k)); });
       el.innerHTML = rows.length ? rows.slice(0, TOP).map(function (r, i) { return card(r.k, r.s, i + 1); }).join("") : '<p class="bp-empty">' + emptyMsg + "</p>";
     }
-    list(scorePick, pickEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.");
+    var hideClash = document.getElementById('hide-clash'); var hc = hideClash ? hideClash.checked : true;
+    list(function (k) { return hc && H[k].clash ? { total: 0, parts: [] } : scorePick(k); }, pickEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.");
     list(scoreBan, banEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.");
   }
 
@@ -114,7 +130,7 @@
     function close() { ac.classList.add("hidden"); active = -1; }
     function show() {
       var q = input.value.trim().toLowerCase(), t = taken();
-      opts = SEL.filter(function (s) { return t.indexOf(s.slug) < 0 && (!q || s.name.toLowerCase().indexOf(q) >= 0 || s.slug.indexOf(q) >= 0); }).slice(0, 12);
+      opts = SEL.filter(function (s) { return t.indexOf(s.slug) < 0 && (!q || s.name.toLowerCase().indexOf(q) >= 0 || s.slug.indexOf(q) >= 0); }).sort(function (a, b) { function r(s) { var n = s.name.toLowerCase(); return !q ? 0 : n === q ? 0 : n.indexOf(q) === 0 ? 1 : 2; } return r(a) - r(b); }).slice(0, 12);
       if (!opts.length) { ac.innerHTML = '<li class="ac-none">Tidak ada hero yang cocok</li>'; ac.classList.remove("hidden"); return; }
       ac.innerHTML = opts.map(function (s, i) { return '<li data-i="' + i + '"' + (i === active ? ' class="on"' : "") + ">" + esc(s.name) + (s.data ? "" : ' <small>(tanpa data sendiri)</small>') + "</li>"; }).join("");
       ac.classList.remove("hidden");
@@ -134,5 +150,6 @@
   });
   document.addEventListener("click", function (ev) { var b = ev.target.closest(".chip button"); if (b) remove(b.dataset.k, b.dataset.s); });
   document.getElementById("bp-reset").addEventListener("click", function () { state = { ban: [], ally: [], enemy: [] }; ["ban", "ally", "enemy"].forEach(renderChips); setMsg(""); render(); });
+  var hcEl = document.getElementById('hide-clash'); if (hcEl) hcEl.addEventListener('change', render);
   render();
 })();
