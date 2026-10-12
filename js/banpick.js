@@ -8,6 +8,8 @@
   var LABEL = { ban: "di-ban", ally: "tim kita", enemy: "musuh" };
   var ROLES = ["Tank", "Fighter", "Assassin", "Mage", "Marksman", "Support"];
   var roleOn = {}; ROLES.forEach(function (r) { roleOn[r] = true; });
+  var LANES = ["Farm Lane", "Mid Lane", "Jungle", "Roam", "Clash Lane"];
+  var laneOn = {}; LANES.forEach(function (l) { laneOn[l] = true; });
   var TOP = 10;
 
   function isFlow(s) { return s === "flowborn" || (s.indexOf("flowborn-") === 0 && s !== "flowborn-generic"); }
@@ -68,34 +70,13 @@
 
   function taken() { return state.ban.concat(state.ally, state.enemy); }
 
-  function plan(p, main) {
-    var rows = p.a.map(function (a) { return '<div class="bp-arc" title="' + esc(a.name) + " x" + a.n + '"><img src="assets/arcana/' + encodeURI(a.file) + '" alt="' + esc(a.name) + '" loading="lazy"/><span>' + esc(a.name) + '</span><b>x' + a.n + "</b></div>"; }).join("");
-    var meta = '<span class="bp-arc-meta">' + (p.pr ? "PR " + esc(p.pr) : "") + (p.wr ? " | WR " + esc(p.wr) : "") + " | total " + p.total + "</span>";
-    var trunc = p.total < 30 ? '<span class="bp-arc-trunc">Total &lt; 30, data mungkin terpotong</span>' : "";
-    return '<div class="bp-arc-plan' + (main ? " main" : "") + '"><div class="bp-arc-row">' + rows + "</div>" + meta + trunc + "</div>";
-  }
-  function arcanaBlock(h) {
-    if (!h.arcana || !h.arcana.length) return '<div class="bp-build bp-nobuild">Arcana tidak ada di data</div>';
-    var html = '<div class="bp-arcana"><div class="bp-build-label">Arcana (plan 1 dari ' + h.arcana.length + ")</div>" + plan(h.arcana[0], true);
-    if (h.arcana.length > 1) html += '<details class="bp-arc-more"><summary>Plan lain (' + (h.arcana.length - 1) + ")</summary>" + h.arcana.slice(1).map(function (p, i) { return '<div class="bp-arc-label">Plan ' + (i + 2) + "</div>" + plan(p, false); }).join("") + "</details>";
-    return html + "</div>";
-  }
-
   function card(k, sc, rank) {
     var h = H[k];
     var parts = sc.parts.map(function (p) { return '<li class="' + p.cls + '"><span>' + esc(p.t) + '</span><b>' + (p.v > 0 ? "+" : "") + fmt(p.v) + "</b></li>"; }).join("");
-    var build;
-    if (h.core && h.core.length) {
-      build = '<div class="bp-build"><div class="bp-build-label">Item core (data Ban &amp; Pick)</div><div class="bp-items bp-core">' +
-        h.core.map(function (it) { return '<div class="bp-item" title="' + esc(it.name) + (it.wr ? " | WR " + esc(it.wr) + " | PR " + esc(it.pr) : "") + '"><img src="assets/items/' + encodeURI(it.file) + '" alt="' + esc(it.name) + '" loading="lazy"/><span>' + esc(it.name) + "</span>" + (it.wr ? '<small>WR ' + esc(it.wr) + "</small>" : "") + "</div>"; }).join("") + "</div></div>";
-    } else {
-      build = '<div class="bp-build bp-nobuild">Item core tidak ada di data</div>';
-    }
-    build += arcanaBlock(h);
     var foot = h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>'
       : (h.nobuild === "clash" ? '<div class="bp-clash">Lane utama Clash, build lengkap tidak dibuat</div>' : '<div class="bp-pending">Build belum tersedia</div>');
     var title = h.page ? '<a href="heroes/' + k + '.html">' + esc(h.name) + "</a>" : esc(h.name);
-    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (h.clash ? '<span class="badge clash">Clash</span>' : "") + '</div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + build + foot + "</article>";
+    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (h.clash ? '<span class="badge clash">Clash</span>' : "") + '</div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + foot + "</article>";
   }
 
   function render() {
@@ -110,17 +91,24 @@
       var parts = String(H[k].role || "").split("/");
       return parts.some(function (p) { return roleOn[p.trim()]; });
     }
+    function laneOk(k) {
+      var parts = String(H[k].lane || "").split("/");
+      return parts.some(function (p) { return laneOn[p.trim()]; });
+    }
     function list(fn, el, emptyMsg, opts) {
       var rows = cands.map(function (k) { return { k: k, s: fn(k) }; }).filter(function (r) { return r.s.total > 0; });
       if (opts.clash) rows = rows.filter(function (r) { return !H[r.k].clash; });
       if (opts.role) rows = rows.filter(function (r) { return roleOk(r.k); });
+      if (opts.lane) rows = rows.filter(function (r) { return laneOk(r.k); });
       rows.sort(function (a, b) { return b.s.total - a.s.total || nm(a.k).localeCompare(nm(b.k)); });
       el.innerHTML = rows.length ? rows.slice(0, TOP).map(function (r, i) { return card(r.k, r.s, i + 1); }).join("") : '<p class="bp-empty">' + emptyMsg + "</p>";
     }
     var hideClash = document.getElementById("hide-clash"); var hc = hideClash ? hideClash.checked : true;
     var anyRole = ROLES.some(function (r) { return roleOn[r]; });
+    var anyLane = LANES.some(function (l) { return laneOn[l]; });
     if (!anyRole) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu role.</p>';
-    else list(scorePick, pickEl, "Belum ada hero role ini yang cocok untuk pilihan ini.", { clash: hc, role: true });
+    else if (!anyLane) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu lane.</p>';
+    else list(scorePick, pickEl, "Belum ada hero role dan lane ini yang cocok untuk pilihan ini.", { clash: hc, role: true, lane: true });
     list(scoreBan, banEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.", {});
   }
 
@@ -161,14 +149,19 @@
   document.addEventListener("click", function (ev) { var b = ev.target.closest(".chip button"); if (b) remove(b.dataset.k, b.dataset.s); });
   document.getElementById("bp-reset").addEventListener("click", function () { state = { ban: [], ally: [], enemy: [] }; ["ban", "ally", "enemy"].forEach(renderChips); setMsg(""); render(); });
   var hcEl = document.getElementById("hide-clash"); if (hcEl) hcEl.addEventListener("change", render);
-  var roleBox = document.getElementById("role-filter");
-  if (roleBox) roleBox.addEventListener("click", function (ev) {
-    var btn = ev.target.closest(".role-chip"); if (!btn) return;
-    var role = btn.getAttribute("data-role");
-    roleOn[role] = !roleOn[role];
-    btn.classList.toggle("on", roleOn[role]);
-    btn.setAttribute("aria-pressed", roleOn[role] ? "true" : "false");
-    render();
-  });
+  function bindChips(boxId, attr, stateMap) {
+    var box = document.getElementById(boxId);
+    if (!box) return;
+    box.addEventListener("click", function (ev) {
+      var btn = ev.target.closest(".role-chip"); if (!btn) return;
+      var key = btn.getAttribute(attr);
+      stateMap[key] = !stateMap[key];
+      btn.classList.toggle("on", stateMap[key]);
+      btn.setAttribute("aria-pressed", stateMap[key] ? "true" : "false");
+      render();
+    });
+  }
+  bindChips("role-filter", "data-role", roleOn);
+  bindChips("lane-filter", "data-lane", laneOn);
   render();
 })();
