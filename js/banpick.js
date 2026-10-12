@@ -6,6 +6,8 @@
   var NAME = { "flowborn-generic": "Flowborn (varian apa pun)" }; SEL.forEach(function (s) { NAME[s.slug] = s.name; });
   var state = { ban: [], ally: [], enemy: [] };
   var LABEL = { ban: "di-ban", ally: "tim kita", enemy: "musuh" };
+  var ROLES = ["Tank", "Fighter", "Assassin", "Mage", "Marksman", "Support"];
+  var roleOn = {}; ROLES.forEach(function (r) { roleOn[r] = true; });
   var TOP = 10;
 
   function isFlow(s) { return s === "flowborn" || (s.indexOf("flowborn-") === 0 && s !== "flowborn-generic"); }
@@ -104,14 +106,22 @@
       pickEl.innerHTML = banEl.innerHTML = '<p class="bp-empty">Pilih hero tim kita dan/atau hero musuh untuk melihat rekomendasi.</p>';
       return;
     }
-    function list(fn, el, emptyMsg) {
+    function roleOk(k) {
+      var parts = String(H[k].role || "").split("/");
+      return parts.some(function (p) { return roleOn[p.trim()]; });
+    }
+    function list(fn, el, emptyMsg, opts) {
       var rows = cands.map(function (k) { return { k: k, s: fn(k) }; }).filter(function (r) { return r.s.total > 0; });
+      if (opts.clash) rows = rows.filter(function (r) { return !H[r.k].clash; });
+      if (opts.role) rows = rows.filter(function (r) { return roleOk(r.k); });
       rows.sort(function (a, b) { return b.s.total - a.s.total || nm(a.k).localeCompare(nm(b.k)); });
       el.innerHTML = rows.length ? rows.slice(0, TOP).map(function (r, i) { return card(r.k, r.s, i + 1); }).join("") : '<p class="bp-empty">' + emptyMsg + "</p>";
     }
-    var hideClash = document.getElementById('hide-clash'); var hc = hideClash ? hideClash.checked : true;
-    list(function (k) { return hc && H[k].clash ? { total: 0, parts: [] } : scorePick(k); }, pickEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.");
-    list(scoreBan, banEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.");
+    var hideClash = document.getElementById("hide-clash"); var hc = hideClash ? hideClash.checked : true;
+    var anyRole = ROLES.some(function (r) { return roleOn[r]; });
+    if (!anyRole) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu role.</p>';
+    else list(scorePick, pickEl, "Belum ada hero role ini yang cocok untuk pilihan ini.", { clash: hc, role: true });
+    list(scoreBan, banEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.", {});
   }
 
   function setMsg(m) { var el = document.getElementById("bp-msg"); el.textContent = m || ""; }
@@ -126,7 +136,7 @@
   function remove(key, slug) { state[key] = state[key].filter(function (s) { return s !== slug; }); renderChips(key); render(); }
 
   ["ban", "ally", "enemy"].forEach(function (key) {
-    var input = document.getElementById("in-" + key), ac = document.getElementById("ac-" + key), active = -1, opts = [];
+    var input = document.getElementById("in-" + key), ac = document.getElementById("ac-" + key), active = -1, opts = [], skipFocus = false;
     function close() { ac.classList.add("hidden"); active = -1; }
     function show() {
       var q = input.value.trim().toLowerCase(), t = taken();
@@ -135,9 +145,9 @@
       ac.innerHTML = opts.map(function (s, i) { return '<li data-i="' + i + '"' + (i === active ? ' class="on"' : "") + ">" + esc(s.name) + (s.data ? "" : ' <small>(tanpa data sendiri)</small>') + "</li>"; }).join("");
       ac.classList.remove("hidden");
     }
-    function choose(i) { if (opts[i] && add(key, opts[i].slug)) { input.value = ""; } close(); input.focus(); }
+    function choose(i) { if (opts[i] && add(key, opts[i].slug)) { input.value = ""; } skipFocus = true; close(); input.focus(); }
     input.addEventListener("input", function () { active = -1; show(); });
-    input.addEventListener("focus", show);
+    input.addEventListener("focus", function () { if (skipFocus) { skipFocus = false; return; } show(); });
     input.addEventListener("blur", function () { setTimeout(close, 150); });
     input.addEventListener("keydown", function (ev) {
       if (ev.key === "ArrowDown") { active = Math.min(active + 1, opts.length - 1); show(); ev.preventDefault(); }
@@ -150,6 +160,15 @@
   });
   document.addEventListener("click", function (ev) { var b = ev.target.closest(".chip button"); if (b) remove(b.dataset.k, b.dataset.s); });
   document.getElementById("bp-reset").addEventListener("click", function () { state = { ban: [], ally: [], enemy: [] }; ["ban", "ally", "enemy"].forEach(renderChips); setMsg(""); render(); });
-  var hcEl = document.getElementById('hide-clash'); if (hcEl) hcEl.addEventListener('change', render);
+  var hcEl = document.getElementById("hide-clash"); if (hcEl) hcEl.addEventListener("change", render);
+  var roleBox = document.getElementById("role-filter");
+  if (roleBox) roleBox.addEventListener("click", function (ev) {
+    var btn = ev.target.closest(".role-chip"); if (!btn) return;
+    var role = btn.getAttribute("data-role");
+    roleOn[role] = !roleOn[role];
+    btn.classList.toggle("on", roleOn[role]);
+    btn.setAttribute("aria-pressed", roleOn[role] ? "true" : "false");
+    render();
+  });
   render();
 })();

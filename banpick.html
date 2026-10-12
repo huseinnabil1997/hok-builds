@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Ban &amp; Pick - HoK S16</title>
-<link rel="stylesheet" href="css/style.css?v=20261010e"/>
+<link rel="stylesheet" href="css/style.css?v=20261012b"/>
 </head>
 <body>
 <header class="app-header">
@@ -32,6 +32,25 @@
     <div class="bp-actions"><button type="button" id="bp-reset">Reset semua</button><span class="bp-msg" id="bp-msg"></span></div>
   </section>
 
+  <section class="bp-results">
+    <div class="bp-col">
+      <div class="bp-col-head"><h2 class="section-title">Rekomendasi pick</h2><label class="bp-toggle"><input type="checkbox" id="hide-clash" checked/> Sembunyikan hero Clash</label></div>
+      <div class="bp-roles" id="role-filter" role="group" aria-label="Filter role rekomendasi pick">
+        <button type="button" class="role-chip on" data-role="Tank" aria-pressed="true">Tank</button>
+        <button type="button" class="role-chip on" data-role="Fighter" aria-pressed="true">Fighter</button>
+        <button type="button" class="role-chip on" data-role="Assassin" aria-pressed="true">Assassin</button>
+        <button type="button" class="role-chip on" data-role="Mage" aria-pressed="true">Mage</button>
+        <button type="button" class="role-chip on" data-role="Marksman" aria-pressed="true">Marksman</button>
+        <button type="button" class="role-chip on" data-role="Support" aria-pressed="true">Support</button>
+      </div>
+      <div id="out-pick" class="bp-list"></div>
+    </div>
+    <div class="bp-col">
+      <h2 class="section-title">Rekomendasi ban</h2>
+      <div id="out-ban" class="bp-list"></div>
+    </div>
+  </section>
+
   <section class="bp-formula">
     <h2 class="section-title">Cara hitung skor</h2>
     <div class="formula-grid">
@@ -54,20 +73,9 @@
     </ul>
     <div class="note bp-cn-note"><strong>Catatan data:</strong> angka index (counter / sinergi), win rate, dan pick rate kemungkinan besar berasal dari data server CN, jadi rekomendasi ini mengikuti meta CN dan bisa berbeda dengan Global. Data juga tidak punya skor index per hero, jadi skor hanya dari counter dan sinergi terhadap hero yang dipilih. Hero yang hanya ada di CN tidak ditampilkan.</div>
   </section>
-
-  <section class="bp-results">
-    <div class="bp-col">
-      <div class="bp-col-head"><h2 class="section-title">Rekomendasi pick</h2><label class="bp-toggle"><input type="checkbox" id="hide-clash" checked/> Sembunyikan hero Clash</label></div>
-      <div id="out-pick" class="bp-list"></div>
-    </div>
-    <div class="bp-col">
-      <h2 class="section-title">Rekomendasi ban</h2>
-      <div id="out-ban" class="bp-list"></div>
-    </div>
-  </section>
 </main>
 <footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
-<script src="data/banpick.js?v=20261010e"></script>
-<script src="js/banpick.js?v=20261010e"></script>
+<script src="data/banpick.js?v=20261012b"></script>
+<script src="js/banpick.js?v=20261012b"></script>
 </body>
 </html>
