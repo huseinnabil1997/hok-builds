@@ -73,7 +73,8 @@
     <ul class="formula-notes">
       <li><strong>Counter(A &rarr; B)</strong> = <code>counter_index</code> jika B ada di daftar <em>Counter</em> milik A, atau A ada di daftar <em>Di-counter</em> milik B. Kalau tercatat di dua daftar, dipakai nilai terbesar (dihitung sekali).</li>
       <li><strong>Duo(A, B)</strong> = <code>synergy_index</code> duo antara A dan B (dari daftar duo A atau B, nilai terbesar, sekali).</li>
-      <li><strong>Trio</strong> = <code>synergy_index</code> trio yang memuat K: penuh (&times;1) jika dua anggota lain sudah ada di tim, &times;0,5 jika baru satu anggota. Setiap kombinasi trio dihitung sekali (nilai terbesar jika tercatat lebih dari sekali).</li>
+      <li><strong>Trio (pick)</strong> = <code>synergy_index</code> trio yang memuat K hanya dihitung jika dua hero lain dari kombinasi itu sudah ada di tim kita (trio lengkap kalau K di-pick).</li>
+      <li><strong>Trio (ban)</strong> = sama, tapi dua hero lain sudah ada di musuh (ban K mengganggu trio musuh). Setiap kombinasi trio dihitung sekali (nilai terbesar jika tercatat lebih dari sekali).</li>
       <li>Semua angka diambil apa adanya dari data. Tidak ada bobot tambahan atau angka karangan. Hero yang sudah di-ban / di-pick tidak direkomendasikan.</li>
       <li>Flowborn: data v2 menulis Flowborn per varian; entri lama &quot;Flowborn&quot; tanpa varian (jika masih ada) dicocokkan ke semua varian.</li>
       <li>Filter role dan lane hanya memotong rekomendasi pick. Hero lolos kalau salah satu role-nya dan salah satu lane-nya sedang nyala. Rekomendasi ban tidak ikut filter ini.</li>
@@ -84,7 +85,7 @@
 </main>
 <footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
 <script src="data/banpick.js?v=20261013h"></script>
-<script src="js/banpick.js?v=20261013i"></script>
+<script src="js/banpick.js?v=20261013j"></script>
 <script src="js/speech.js?v=20261013b"></script>
 </body>
 </html>
