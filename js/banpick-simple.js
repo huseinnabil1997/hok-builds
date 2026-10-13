@@ -40,20 +40,20 @@
     if (hb) hb.duo.forEach(function (x) { if (same(x.slug, a)) hit = true; });
     return hit;
   }
-  function trioParts(k, team) {
+  function trioParts(k, team, minOnTeam) {
+    var need = minOnTeam == null ? 2 : minOnTeam;
     var seen = {};
     [k].concat(team).forEach(function (src) {
       var h = H[src]; if (!h) return;
-      h.trio.forEach(function (t) {
+      (h.trio || []).forEach(function (t) {
         var ki = -1;
         for (var i = 0; i < 3; i++) if (same(t.h[i], k)) { ki = i; break; }
         if (ki < 0) return;
         var others = t.h.filter(function (_, i) { return i !== ki; });
         var hit = others.filter(function (o) { return team.some(function (m) { return same(o, m); }); });
-        if (!hit.length) return;
+        if (hit.length < need) return;
         var key = others.slice().sort().join("+");
-        var full = hit.length >= 2;
-        if (!seen[key] || (full && !seen[key].full)) seen[key] = { full: full, members: others };
+        if (!seen[key]) seen[key] = { members: others };
       });
     });
     return Object.keys(seen).map(function (key) { return seen[key]; });
@@ -68,9 +68,9 @@
     state.ally.forEach(function (a) {
       if (duoHit(k, a)) { total += 1; parts.push({ cls: "plus", t: "Duo dengan " + nm(a) }); }
     });
-    trioParts(k, state.ally).forEach(function (t) {
+    trioParts(k, state.ally, 2).forEach(function (t) {
       total += 1;
-      parts.push({ cls: "plus", t: "Trio dengan " + t.members.map(nm).join(" + ") + (t.full ? "" : " (baru 1 rekan)") });
+      parts.push({ cls: "plus", t: "Trio dengan " + t.members.map(nm).join(" + ") + " (lengkap)" });
     });
     return { total: total, parts: parts };
   }
@@ -82,9 +82,9 @@
     state.enemy.forEach(function (e) {
       if (duoHit(k, e)) { total += 1; parts.push({ cls: "plus", t: "Duo dengan " + nm(e) + " (musuh)" }); }
     });
-    trioParts(k, state.enemy).forEach(function (t) {
+    trioParts(k, state.enemy, 2).forEach(function (t) {
       total += 1;
-      parts.push({ cls: "plus", t: "Trio dengan " + t.members.map(nm).join(" + ") + " (musuh)" + (t.full ? "" : " (baru 1 rekan)") });
+      parts.push({ cls: "plus", t: "Trio dengan " + t.members.map(nm).join(" + ") + " (musuh, 2 sudah di lapangan)" });
     });
     return { total: total, parts: parts };
   }
