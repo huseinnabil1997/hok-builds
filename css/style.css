@@ -124,6 +124,21 @@ header.app-header .sub {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+.mic-btn {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+  color: var(--muted);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.search-box .mic-btn { padding: 0.75rem 0.9rem; }
+.mic-btn:hover { border-color: var(--accent); color: var(--text); }
+.mic-btn.on { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
 .filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
 .filters button {
   background: var(--bg-elev);
