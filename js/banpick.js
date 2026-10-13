@@ -3,6 +3,16 @@
   var D = window.BANPICK_DATA;
   if (!D) return;
   var H = D.heroes, SEL = D.selectable;
+  // Lane ganda: hero tetap lolos filter kalau salah satu lane-nya nyala.
+  // Chicha main Clash dan Farm; data sumber cuma menulis Clash Lane.
+  (function () {
+    var h = H.chicha;
+    if (!h) return;
+    var parts = String(h.lane || "").split("/").map(function (p) { return p.trim(); }).filter(Boolean);
+    if (parts.indexOf("Farm Lane") < 0) parts.unshift("Farm Lane");
+    h.lane = parts.join("/");
+    h.clash = parts.length === 1 && parts[0] === "Clash Lane";
+  })();
   var NAME = { "flowborn-generic": "Flowborn (varian apa pun)" }; SEL.forEach(function (s) { NAME[s.slug] = s.name; });
   var state = { ban: [], ally: [], enemy: [] };
   var LABEL = { ban: "di-ban", ally: "tim kita", enemy: "musuh" };
@@ -97,18 +107,16 @@
     }
     function list(fn, el, emptyMsg, opts) {
       var rows = cands.map(function (k) { return { k: k, s: fn(k) }; }).filter(function (r) { return r.s.total > 0; });
-      if (opts.clash) rows = rows.filter(function (r) { return !H[r.k].clash; });
       if (opts.role) rows = rows.filter(function (r) { return roleOk(r.k); });
       if (opts.lane) rows = rows.filter(function (r) { return laneOk(r.k); });
       rows.sort(function (a, b) { return b.s.total - a.s.total || nm(a.k).localeCompare(nm(b.k)); });
       el.innerHTML = rows.length ? rows.slice(0, TOP).map(function (r, i) { return card(r.k, r.s, i + 1); }).join("") : '<p class="bp-empty">' + emptyMsg + "</p>";
     }
-    var hideClash = document.getElementById("hide-clash"); var hc = hideClash ? hideClash.checked : true;
     var anyRole = ROLES.some(function (r) { return roleOn[r]; });
     var anyLane = LANES.some(function (l) { return laneOn[l]; });
     if (!anyRole) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu role.</p>';
     else if (!anyLane) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu lane.</p>';
-    else list(scorePick, pickEl, "Belum ada hero role dan lane ini yang cocok untuk pilihan ini.", { clash: hc, role: true, lane: true });
+    else list(scorePick, pickEl, "Belum ada hero role dan lane ini yang cocok untuk pilihan ini.", { role: true, lane: true });
     list(scoreBan, banEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.", {});
   }
 
@@ -148,7 +156,6 @@
   });
   document.addEventListener("click", function (ev) { var b = ev.target.closest(".chip button"); if (b) remove(b.dataset.k, b.dataset.s); });
   document.getElementById("bp-reset").addEventListener("click", function () { state = { ban: [], ally: [], enemy: [] }; ["ban", "ally", "enemy"].forEach(renderChips); setMsg(""); render(); });
-  var hcEl = document.getElementById("hide-clash"); if (hcEl) hcEl.addEventListener("change", render);
   function bindChips(boxId, attr, stateMap) {
     var box = document.getElementById(boxId);
     if (!box) return;
