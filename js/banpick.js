@@ -14,7 +14,6 @@
     h.clash = parts.length === 1 && parts[0] === "Clash Lane";
   })();
   var NAME = { "flowborn-generic": "Flowborn (varian apa pun)" }; SEL.forEach(function (s) { NAME[s.slug] = s.name; });
-  var MATCH = window.HeroMatch.create(SEL, window.HERO_ALIASES);
   var state = { ban: [], ally: [], enemy: [] };
   var LABEL = { ban: "di-ban", ally: "tim kita", enemy: "musuh" };
   var ROLES = ["Tank", "Fighter", "Assassin", "Mage", "Marksman", "Support"];
@@ -130,7 +129,6 @@
   function renderChips(key) {
     var box = document.getElementById("chips-" + key);
     box.innerHTML = state[key].map(function (s) { return '<span class="chip chip-' + key + '">' + esc(nm(s)) + '<button type="button" data-k="' + key + '" data-s="' + s + '" aria-label="Hapus ' + esc(nm(s)) + '">&times;</button></span>'; }).join("");
-    document.dispatchEvent(new Event("banpick:change"));
   }
   function add(key, slug) {
     for (var k in state) if (state[k].indexOf(slug) >= 0) { setMsg(nm(slug) + " sudah ada di daftar " + LABEL[k] + "."); return false; }
@@ -142,10 +140,8 @@
     var input = document.getElementById("in-" + key), ac = document.getElementById("ac-" + key), active = -1, opts = [], skipFocus = false;
     function close() { ac.classList.add("hidden"); active = -1; }
     function show() {
-      var q = input.value.trim(), t = taken();
-      // Autocomplete mulai dari 2 huruf; cocok ke nama, slug, dan alias (data/hero-aliases.js).
-      if (q.length < 2) { opts = []; close(); return; }
-      opts = MATCH.search(q).filter(function (s) { return t.indexOf(s.slug) < 0; }).slice(0, 12);
+      var q = input.value.trim().toLowerCase(), t = taken();
+      opts = SEL.filter(function (s) { return t.indexOf(s.slug) < 0 && (!q || s.name.toLowerCase().indexOf(q) >= 0 || s.slug.indexOf(q) >= 0); }).sort(function (a, b) { function r(s) { var n = s.name.toLowerCase(); return !q ? 0 : n === q ? 0 : n.indexOf(q) === 0 ? 1 : 2; } return r(a) - r(b); }).slice(0, 12);
       if (!opts.length) { ac.innerHTML = '<li class="ac-none">Tidak ada hero yang cocok</li>'; ac.classList.remove("hidden"); return; }
       ac.innerHTML = opts.map(function (s, i) { return '<li data-i="' + i + '"' + (i === active ? ' class="on"' : "") + ">" + esc(s.name) + (s.data ? "" : ' <small>(tanpa data sendiri)</small>') + "</li>"; }).join("");
       ac.classList.remove("hidden");
@@ -179,7 +175,5 @@
   }
   bindChips("role-filter", "data-role", roleOn);
   bindChips("lane-filter", "data-lane", laneOn);
-  // Dipakai js/hero-picker.js (grid hero).
-  window.BANPICK = { add: add, taken: taken };
   render();
 })();

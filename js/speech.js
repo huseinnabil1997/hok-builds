@@ -1,22 +1,88 @@
 (function () {
   "use strict";
-  // Input suara opsional. Mesin STT: Web Speech API bawaan browser (bukan Whisper),
-  // jadi tidak ada initial_prompt. Sebagai gantinya: daftar hero dikirim sebagai
-  // SpeechGrammarList (kalau browser mendukung) dan hasil transkrip di-fuzzy-match
-  // ke daftar hero + alias (js/hero-match.js, data/hero-aliases.js).
   var Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
   var inputs = document.querySelectorAll("input[data-speech]");
-  if (!Ctor || !inputs.length || !window.HeroMatch) return;
+  if (!Ctor || !inputs.length) return;
 
-  function heroList() {
+  function heroNames() {
     var data = window.BANPICK_DATA;
-    if (data && data.selectable) return data.selectable;
+    if (data && data.selectable) return data.selectable.map(function (hero) { return hero.name; });
+    if (data && data.heroes) {
+      return Object.keys(data.heroes).map(function (id) { return data.heroes[id].name; });
+    }
     return Array.prototype.map.call(document.querySelectorAll("[data-name]"), function (el) {
-      return { name: el.getAttribute("data-name"), slug: el.getAttribute("data-slug") || window.HeroMatch.fold(el.getAttribute("data-name")) };
+      return el.getAttribute("data-name");
     });
   }
-  var HEROES = heroList();
-  var matcher = window.HeroMatch.create(HEROES, window.HERO_ALIASES);
+
+  function fold(value) {
+    return String(value).toLowerCase().replace(/\bnumber\b/g, "no").replace(/['’.]/g, "").replace(/[^a-z0-9]+/g, "");
+  }
+
+  function editDistance(left, right) {
+    if (left === right) return 0;
+    if (!left.length) return right.length;
+    if (!right.length) return left.length;
+    var prev = [];
+    var i, j;
+    for (j = 0; j <= right.length; j++) prev[j] = j;
+    for (i = 1; i <= left.length; i++) {
+      var cur = [i];
+      for (j = 1; j <= right.length; j++) {
+        var cost = left.charAt(i - 1) === right.charAt(j - 1) ? 0 : 1;
+        cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+      }
+      prev = cur;
+    }
+    return prev[right.length];
+  }
+
+  function score(query, name) {
+    if (query === name) return 0;
+    if (query.length <= name.length && name.indexOf(query) === 0) return (name.length - query.length) * 0.4;
+    if (Math.abs(query.length - name.length) > 2) return 99;
+    return editDistance(query, name);
+  }
+
+  function matchName(text) {
+    var query = fold(text);
+    var list = heroNames();
+    if (!query || !list.length) return null;
+    var best = null;
+    var bestDistance = 99;
+    var ties = 0;
+    for (var i = 0; i < list.length; i++) {
+      var gap = score(query, fold(list[i]));
+      if (gap < bestDistance) {
+        bestDistance = gap;
+        best = list[i];
+        ties = 1;
+      } else if (gap === bestDistance) {
+        ties += 1;
+      }
+    }
+    var limit = Math.max(1, Math.ceil(query.length * 0.45));
+    if (!best || bestDistance > limit || ties > 1) return null;
+    return best;
+  }
+
+  function matchMany(text) {
+    var words = String(text).toLowerCase().replace(/\bnumber\b/g, "no").replace(/['’.]/g, " ").split(/[^a-z0-9]+/).filter(Boolean);
+    var found = [];
+    var i = 0;
+    while (i < words.length) {
+      var hit = null;
+      var take = 1;
+      var max = Math.min(4, words.length - i);
+      for (var n = max; n >= 1; n--) {
+        var name = matchName(words.slice(i, i + n).join(" "));
+        if (name) { hit = name; take = n; break; }
+      }
+      if (hit) found.push(hit);
+      i += take;
+    }
+    return found;
+  }
 
   // iOS Safari meminta izin mic ulang di setiap rec.start(), jadi jangan auto-restart di iOS.
   var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
@@ -26,15 +92,6 @@
   rec.interimResults = true;
   rec.continuous = !isIOS;
   rec.maxAlternatives = 5;
-  var Grammar = window.SpeechGrammarList || window.webkitSpeechGrammarList;
-  if (Grammar) {
-    try {
-      var g = new Grammar();
-      var names = HEROES.map(function (h) { return h.name.replace(/[^A-Za-z0-9 ]+/g, " ").trim(); }).filter(Boolean);
-      g.addFromString("#JSGF V1.0; grammar heroes; public <hero> = " + names.join(" | ") + " ;", 1);
-      rec.grammars = g;
-    } catch (err) { /* grammar tidak didukung, abaikan */ }
-  }
 
   var token = 0;
   var live = 0;
@@ -67,19 +124,18 @@
     clearButton();
   };
   function commit(name) {
-    var key = window.HeroMatch.fold(name);
+    var key = fold(name);
     if (added[key]) return;
     added[key] = true;
     activeInput.value = name;
     activeInput.dispatchEvent(new Event("input", { bubbles: true }));
     activeInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   }
-  function namesOf(text) { return matcher.matchMany(text).map(function (h) { return h.name; }); }
   // Pilih alternatif transkrip yang paling banyak cocok dengan nama hero.
   function bestFinal(result) {
-    var best = { text: result[0].transcript, names: namesOf(result[0].transcript) };
+    var best = { text: result[0].transcript, names: matchMany(result[0].transcript) };
     for (var k = 1; k < result.length; k++) {
-      var names = namesOf(result[k].transcript);
+      var names = matchMany(result[k].transcript);
       if (names.length > best.names.length) best = { text: result[k].transcript, names: names };
     }
     return best;
@@ -143,8 +199,7 @@
     btn.type = "button";
     btn.className = "mic-btn";
     btn.textContent = "Suara";
-    btn.title = "Opsional: ucapkan nama hero. Hasil dicocokkan ke daftar hero.";
-    btn.setAttribute("aria-label", "Ucapkan nama hero (opsional)");
+    btn.setAttribute("aria-label", "Ucapkan nama hero");
     btn.setAttribute("aria-pressed", "false");
     input.insertAdjacentElement("afterend", btn);
     btn.addEventListener("click", function () {
