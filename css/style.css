@@ -971,7 +971,9 @@ details.cond > .cond-body { padding: 1.35rem 1.4rem 1.5rem 1.4rem !important; }
 .hp-tile { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 0.4rem 0.2rem; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); cursor: pointer; }
 .hp-tile:hover { border-color: var(--accent); }
 .hp-tile.used { opacity: 0.35; cursor: default; }
-.hp-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; }
+.hp-icon { position: relative; overflow: hidden; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; }
 .hp-name { font-size: 0.72rem; line-height: 1.15; text-align: center; word-break: break-word; }
 .hp-empty { color: var(--muted); font-size: 0.85rem; }
 .hp-empty.hidden { display: none; }
+
+.hp-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

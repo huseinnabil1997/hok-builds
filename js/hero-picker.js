@@ -4,7 +4,7 @@
   "use strict";
   var D = window.BANPICK_DATA, BP = window.BANPICK, box = document.getElementById("hero-picker");
   if (!D || !BP || !box || !window.HeroMatch) return;
-  var SEL = D.selectable, H = D.heroes;
+  var SEL = D.selectable, H = D.heroes, ICONS = window.HERO_ICONS || {};
   var matcher = window.HeroMatch.create(SEL, window.HERO_ALIASES);
   var ROLES = ["Tank", "Fighter", "Assassin", "Mage", "Marksman", "Support"];
   var TARGETS = [["ban", "Ban"], ["ally", "Tim kita"], ["enemy", "Musuh"]];
@@ -39,7 +39,8 @@
     grid.innerHTML = list.map(function (s) {
       var used = taken.indexOf(s.slug) >= 0;
       return '<button type="button" class="hp-tile' + (used ? " used" : "") + '" data-slug="' + esc(s.slug) + '"' + (used ? " disabled" : "") + ' title="' + esc(s.name) + (roleOf(s) ? " | " + esc(roleOf(s)) : "") + '">' +
-        '<span class="hp-icon" style="background:hsl(' + hue(s.slug) + ',45%,32%)" aria-hidden="true">' + esc(initials(s.name)) + "</span>" +
+        '<span class="hp-icon" style="background:hsl(' + hue(s.slug) + ',45%,32%)" aria-hidden="true">' + esc(initials(s.name)) +
+        (ICONS[s.slug] ? '<img src="' + esc(ICONS[s.slug]) + '" alt="" loading="lazy" onerror="this.remove()"/>' : "") + "</span>" +
         '<span class="hp-name">' + esc(s.name) + "</span></button>";
     }).join("");
     empty.classList.toggle("hidden", list.length > 0);
