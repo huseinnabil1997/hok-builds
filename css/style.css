@@ -959,3 +959,19 @@ details.cond > .cond-body { padding: 1.35rem 1.4rem 1.5rem 1.4rem !important; }
 .sit-gold { font-weight: 500; font-size: 0.74rem; color: var(--warn); margin-left: 0.35rem; }
 .sit-when { font-size: 0.8rem; color: var(--muted); line-height: 1.45; margin-top: 0.15rem; }
 /* === end New-hero states === */
+/* Grid pemilih hero (Ban & Pick) */
+.bp-picker { margin: 1rem 0; padding: 0.9rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.hp-head { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.hp-head .section-title { margin: 0; }
+.hp-targets, .hp-roles { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.hp-roles { margin: 0.6rem 0; }
+.hp-search { width: 100%; box-sizing: border-box; padding: 0.55rem 0.7rem; background: var(--bg-elev); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.92rem; }
+.hp-search:focus { outline: 0; border-color: var(--accent); }
+.hp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 0.45rem; max-height: 340px; overflow-y: auto; }
+.hp-tile { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 0.4rem 0.2rem; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); cursor: pointer; }
+.hp-tile:hover { border-color: var(--accent); }
+.hp-tile.used { opacity: 0.35; cursor: default; }
+.hp-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; }
+.hp-name { font-size: 0.72rem; line-height: 1.15; text-align: center; word-break: break-word; }
+.hp-empty { color: var(--muted); font-size: 0.85rem; }
+.hp-empty.hidden { display: none; }
