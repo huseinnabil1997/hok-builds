@@ -959,3 +959,8 @@ details.cond > .cond-body { padding: 1.35rem 1.4rem 1.5rem 1.4rem !important; }
 .sit-gold { font-weight: 500; font-size: 0.74rem; color: var(--warn); margin-left: 0.35rem; }
 .sit-when { font-size: 0.8rem; color: var(--muted); line-height: 1.45; margin-top: 0.15rem; }
 /* === end New-hero states === */
+/* Ikon hero di rekomendasi dan daftar ban */
+.hero-ico { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; flex: none; width: 1.6em; height: 1.6em; margin-right: 0.4em; border-radius: 50%; background: var(--bg-elev); border: 1px solid var(--border); color: var(--muted); font-size: 0.7em; font-weight: 700; vertical-align: middle; }
+.hero-ico img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.bp-title h3 .hero-ico { width: 2rem; height: 2rem; font-size: 0.7rem; }
+.chip .hero-ico { width: 1.3rem; height: 1.3rem; font-size: 0.55rem; margin-right: 0.3rem; }

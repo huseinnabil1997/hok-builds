@@ -27,6 +27,16 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function fmt(n) { return (Math.round(n * 100) / 100).toLocaleString("id-ID", { maximumFractionDigits: 2 }); }
   function nm(s) { return NAME[s] || (H[s] && H[s].name) || s; }
+  // Ikon hero (data/hero-icons.js). Kalau tidak ada / gagal dimuat, tampil inisial.
+  var ICONS = window.HERO_ICONS || {};
+  function initials(name) {
+    var w = String(name).replace(/\(.*\)/, "").split(/[^A-Za-z0-9]+/).filter(Boolean);
+    return (w.length > 1 ? w[0][0] + w[1][0] : String(name).slice(0, 2)).toUpperCase();
+  }
+  function icon(s) {
+    var img = ICONS[s] ? '<img src="' + esc(ICONS[s]) + '" alt="" loading="lazy" onerror="this.remove()"/>' : "";
+    return '<span class="hero-ico" aria-hidden="true">' + esc(initials(nm(s))) + img + "</span>";
+  }
 
   // Counter(a -> b): a counters b
   function counterVal(a, b) {
@@ -91,7 +101,7 @@
     var foot = h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>'
       : (h.nobuild === "clash" ? '<div class="bp-clash">Lane utama Clash, build lengkap tidak dibuat</div>' : '<div class="bp-pending">Build belum tersedia</div>');
     var title = h.page ? '<a href="heroes/' + k + '.html">' + esc(h.name) + "</a>" : esc(h.name);
-    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (h.clash ? '<span class="badge clash">Clash</span>' : "") + '</div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + foot + "</article>";
+    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + icon(k) + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (h.clash ? '<span class="badge clash">Clash</span>' : "") + '</div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + foot + "</article>";
   }
 
   function render() {
@@ -128,7 +138,7 @@
   function setMsg(m) { var el = document.getElementById("bp-msg"); el.textContent = m || ""; }
   function renderChips(key) {
     var box = document.getElementById("chips-" + key);
-    box.innerHTML = state[key].map(function (s) { return '<span class="chip chip-' + key + '">' + esc(nm(s)) + '<button type="button" data-k="' + key + '" data-s="' + s + '" aria-label="Hapus ' + esc(nm(s)) + '">&times;</button></span>'; }).join("");
+    box.innerHTML = state[key].map(function (s) { return '<span class="chip chip-' + key + '">' + (key === "ban" ? icon(s) : "") + esc(nm(s)) + '<button type="button" data-k="' + key + '" data-s="' + s + '" aria-label="Hapus ' + esc(nm(s)) + '">&times;</button></span>'; }).join("");
   }
   function add(key, slug) {
     for (var k in state) if (state[k].indexOf(slug) >= 0) { setMsg(nm(slug) + " sudah ada di daftar " + LABEL[k] + "."); return false; }
