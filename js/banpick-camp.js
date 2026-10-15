@@ -1,5 +1,30 @@
 (function () {
   "use strict";
+
+  // Skor duo/trio (aturan 2): trio lengkap dihitung penuh dan menutup pasangannya; pasangan K-X yang belum tertutup
+  // dihitung sekali = max(duo asli, trio{K,X,Z} x 0,5). Seri dimenangkan duo asli. Tidak ada pasangan dihitung dua kali.
+  // trios: semua trio yang memuat k, bentuk { v, others: [a, b] }.
+  function comboScore(k, team, duoFn, trios, same, nm, sfx) {
+    var parts = [], total = 0, covered = {};
+    function member(o) { for (var i = 0; i < team.length; i++) if (same(o, team[i])) return team[i]; return null; }
+    trios.forEach(function (t) {
+      var a = member(t.others[0]), b = member(t.others[1]);
+      if (!a || !b || a === b) return;
+      total += t.v; covered[a] = covered[b] = true;
+      parts.push({ cls: "plus", t: "Trio dengan " + nm(a) + " dan " + nm(b) + sfx, v: t.v });
+    });
+    team.forEach(function (m) {
+      if (covered[m]) return;
+      var d = duoFn(k, m) || 0, h = 0, z = null;
+      trios.forEach(function (t) {
+        for (var i = 0; i < 2; i++) if (same(t.others[i], m) && t.v * 0.5 > h) { h = t.v * 0.5; z = t.others[1 - i]; }
+      });
+      if (d > 0 && d >= h) { total += d; parts.push({ cls: "plus", t: "Duo dengan " + nm(m) + sfx, v: d }); }
+      else if (h > 0) { total += h; parts.push({ cls: "plus", t: "Bagian dari trio " + nm(k) + "-" + nm(m) + "-" + nm(z) + " (x0,5)" + sfx, v: h }); }
+    });
+    return { total: total, parts: parts };
+  }
+  if (typeof window !== "undefined") window.__comboScore = comboScore;
   var D = window.BANPICK_DATA;
   if (!D) return;
   var H = D.heroes, SEL = D.selectable;
@@ -46,24 +71,19 @@
     C.duo.forEach(function (x) { if (((same(x.h[0], a) && same(x.h[1], b)) || (same(x.h[1], a) && same(x.h[0], b))) && x.v > best) best = x.v; });
     return best;
   }
-  // Trio yang memuat k dan dua anggota lainnya sudah ada di team.
-  function campTrios(k, team) {
-    var out = [];
+  // Semua trio HoK Camp yang memuat k (dedup per pasangan, nilai terbesar).
+  function campTrios(k) {
+    var best = {};
     C.trio.forEach(function (t) {
       var ki = -1;
       for (var i = 0; i < 3; i++) if (same(t.h[i], k)) { ki = i; break; }
       if (ki < 0) return;
-      var others = t.h.filter(function (_, i) { return i !== ki; });
-      if (others.every(function (o) { return team.some(function (m) { return same(o, m); }); })) out.push({ v: t.v, members: others });
+      var others = t.h.filter(function (_, i) { return i !== ki; }), key = others.slice().sort().join("+");
+      if (!best[key] || t.v > best[key].v) best[key] = { v: t.v, others: others };
     });
-    return out;
+    return Object.keys(best).map(function (key) { return best[key]; });
   }
-  function score(k, team, suffix) {
-    var parts = [], total = 0;
-    team.forEach(function (a) { var s = campDuo(k, a); if (s) { total += s; parts.push({ cls: "plus", t: "Duo dengan " + nm(a) + suffix, v: s }); } });
-    campTrios(k, team).forEach(function (t) { total += t.v; parts.push({ cls: "plus", t: "Trio dengan " + t.members.map(nm).join(" + ") + suffix, v: t.v }); });
-    return { total: total, parts: parts };
-  }
+  function score(k, team, suffix) { return comboScore(k, team, campDuo, campTrios(k), same, nm, suffix); }
   function scorePick(k) { return score(k, state.ally, ""); }
   function scoreBan(k) { return score(k, state.enemy, " (musuh)"); }
 

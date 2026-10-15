@@ -63,14 +63,19 @@
     <div class="formula-grid">
       <div class="formula-card">
         <h3>Skor pick (kandidat K)</h3>
-        <p class="formula">Skor = &Sigma; Duo(K, tiap hero tim kita) + &Sigma; Trio(K + dua hero tim kita)</p>
+        <p class="formula">Skor = &Sigma; Trio lengkap(K + dua hero tim kita) + &Sigma; pasangan sisa max(Duo, Trio &times; 0,5)</p>
       </div>
       <div class="formula-card">
         <h3>Skor ban (kandidat K)</h3>
-        <p class="formula">Skor = &Sigma; Duo(K, tiap hero musuh) + &Sigma; Trio(K + dua hero musuh)</p>
+        <p class="formula">Skor = &Sigma; Trio lengkap(K + dua hero musuh) + &Sigma; pasangan sisa max(Duo, Trio &times; 0,5)</p>
       </div>
     </div>
     <ul class="formula-notes">
+      <li><strong>Aturan duo/trio</strong> (berlaku untuk pick dan ban, S = tim kita untuk pick, musuh untuk ban):
+        (1) <em>Trio lengkap</em>: tiap trio {K, X, Y} dengan X dan Y sudah di S dihitung penuh ("Trio dengan X dan Y").
+        (2) Pasangan K-X dan K-Y dari trio lengkap itu ditandai sudah tertutup.
+        (3) Tiap X di S yang belum tertutup dihitung <em>sekali</em> = max(Duo(K, X), Trio{K, X, Z} &times; 0,5) untuk Z mana pun; kalau duo asli yang terbesar (atau seri) alasannya "Duo dengan X", kalau tidak "Bagian dari trio K-X-Z (x0,5)".
+        Tidak ada pasangan yang dihitung dua kali.</li>
       <li>Data murni <strong>HoK Camp</strong>: angka <em>Compatibility</em> (%) di tab Pairings halaman detail hero (camp.honorofkings.com), diambil 2026-10-15. Angka dipakai apa adanya, tanpa normalisasi dan tanpa bobot.</li>
       <li><strong>Tidak ada counter.</strong> Halaman ini cuma menghitung sinergi duo/trio. Untuk counter, pakai <a href="banpick.html">Ban &amp; Pick</a> atau <a href="banpick-simple.html">Ban &amp; Pick Simpel</a>.</li>
       <li><strong>Pick:</strong> Duo dihitung untuk tiap hero tim kita yang punya pasangan dengan K. Trio hanya dihitung kalau dua hero lain di kombinasi itu sudah ada di tim kita.</li>
@@ -85,7 +90,7 @@
 <script src="data/banpick.js?v=20261013h"></script>
 <script src="data/hero-icons.js?v=20261014a"></script>
 <script src="data/hokcamp-combos.js?v=20261015a"></script>
-<script src="js/banpick-camp.js?v=20261015a"></script>
+<script src="js/banpick-camp.js?v=20261015r2"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
 <script src="js/speech.js?v=20261014a"></script>
