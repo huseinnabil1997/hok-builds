@@ -21,7 +21,7 @@
   function placeArt() { root.style.setProperty("--hero-art-top", (header ? header.offsetHeight : 0) + "px"); }
   placeArt();
   window.addEventListener("resize", placeArt);
-  function hideArt() { layers[0].classList.remove("on"); layers[1].classList.remove("on"); }
+  function hideArt() { layers[0].classList.remove("on"); layers[1].classList.remove("on"); document.body.classList.remove("has-art"); }
   function showArt(bg) {
     artKey = bg ? bg.url : null;
     if (!bg) { hideArt(); return; }
@@ -30,11 +30,13 @@
     pre.onload = function () {
       if (artKey !== bg.url) return;
       var next = 1 - front;
-      layers[next].style.backgroundImage = 'url("' + bg.url + '")';
-      layers[next].style.backgroundPosition = bg.x + "% " + bg.y + "%";
+      // Pola mlbb-banpick: --art dipakai lapis blur (::before) dan lapis tajam (::after).
+      layers[next].style.setProperty("--art", 'url("' + bg.url + '")');
+      layers[next].style.setProperty("--art-pos", bg.x + "% 0");
       layers[next].classList.add("on");
       layers[front].classList.remove("on");
       front = next;
+      document.body.classList.add("has-art");
     };
     pre.onerror = function () { if (artKey === bg.url) hideArt(); };
     pre.src = bg.url;
