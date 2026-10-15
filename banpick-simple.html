@@ -71,6 +71,7 @@
       </div>
     </div>
     <ul class="formula-notes">
+      <li><strong>Sumber duo/trio digabung:</strong> data repo (companion app) dan HoK Camp (<em>Compatibility</em> %, tab Pairings di halaman detail hero, diambil 2026-10-15). Tiap sumber dinormalisasi 0&ndash;100 (nilai tertinggi = 100), terpisah untuk duo dan trio. Combo yang ada di dua sumber: 0,6 &times; repo + 0,4 &times; HoK Camp. Combo yang cuma ada di satu sumber: nilainya &times; 0,7. Nilai trio dipotong di persentil ke-90 supaya combo ekstrem (mis. Marco Polo + Yaria) tidak mendominasi. Hasilnya dikembalikan ke skala index repo (duo maks 20,91, trio maks 25,34) supaya sebanding dengan <code>counter_index</code>. Angka setelan ada di <code>CONFIG</code> di <code>js/combo-merge.js</code>.</li>
       <li>Angka <code>counter_index</code> dan <code>synergy_index</code> tidak dipakai. Yang dihitung cuma ada atau tidaknya hubungan.</li>
       <li>Satu pasangan hero dihitung sekali, walaupun tercatat di dua daftar.</li>
       <li><strong>Pick:</strong> trio cuma kehitung kalau dua rekan lain dari kombinasi sudah di tim kita (trio lengkap). <strong>Ban:</strong> trio kehitung kalau dua hero kombinasi sudah ada di musuh.</li>
@@ -80,9 +81,11 @@
     <div class="note bp-cn-note"><strong>Versi skor index</strong> tetap ada di <a href="banpick.html">Ban &amp; Pick</a>. Data hubungan sama, yang beda cuma cara ngitungnya.</div>
   </section>
 </main>
-<footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
+<footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) + duo/trio HoK Camp | build dari sheet situs</footer>
 <script src="data/banpick.js?v=20261013h"></script>
 <script src="data/hero-icons.js?v=20261014a"></script>
+<script src="data/hokcamp-combos.js?v=20261015a"></script>
+<script src="js/combo-merge.js?v=20261015a"></script>
 <script src="js/banpick-simple.js?v=20261014c"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
