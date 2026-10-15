@@ -1026,3 +1026,6 @@ body.hero-bg header.app-header { background: rgba(255,255,255,0.72); -webkit-bac
 body.hero-bg main, body.hero-bg footer { position: relative; }
 /* Di bawah art: mulai tepat di warna akhir fade supaya tanpa sambungan. */
 body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) max(48vh, 320px), var(--hero-bg-2, #f6f6f6) calc(max(48vh, 320px) + 60vh), #f6f6f6 100%); }
+/* Art mulai di bawah header (--hero-art-top dari js/hero-bg.js); gradien menyambung di bawahnya. */
+.hero-art { top: var(--hero-art-top, 0px); }
+body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) calc(var(--hero-art-top, 0px) + max(48vh, 320px)), var(--hero-bg-2, #f6f6f6) calc(var(--hero-art-top, 0px) + max(48vh, 320px) + 60vh), #f6f6f6 100%); }

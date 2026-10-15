@@ -1,5 +1,7 @@
 // Latar Ban & Pick: art hero rekomendasi pick #1 di atas, memudar ke gradien warnanya.
-// Art: data/hero-bgs.js (img/heroes-bg). Tanpa art: gradien dari warna ikon saja.
+// Art: data/hero-bgs.js, dimuat langsung dari CDN HoK Camp (seperti mlbb-banpick). CDN tidak
+// mengirim Access-Control-Allow-Origin, jadi warna gradien diambil dari ikon lokal (img/heroes).
+// Art gagal dimuat -> hanya gradien. Art mulai di bawah header supaya wajah tidak tertutup.
 // Hanya membaca DOM hasil render (#out-pick); logika rekomendasi tidak disentuh.
 (function () {
   "use strict";
@@ -15,13 +17,27 @@
   art.innerHTML = '<div class="hero-art-layer"></div><div class="hero-art-layer"></div><div class="hero-art-fade"></div>';
   document.body.insertBefore(art, document.body.firstChild);
   var layers = art.querySelectorAll(".hero-art-layer"), front = 0;
-  function showArt(url) {
-    if (!url) { layers[0].classList.remove("on"); layers[1].classList.remove("on"); return; }
-    var next = 1 - front;
-    layers[next].style.backgroundImage = 'url("' + url + '")';
-    layers[next].classList.add("on");
-    layers[front].classList.remove("on");
-    front = next;
+  var header = document.querySelector("header.app-header"), artKey = null;
+  function placeArt() { root.style.setProperty("--hero-art-top", (header ? header.offsetHeight : 0) + "px"); }
+  placeArt();
+  window.addEventListener("resize", placeArt);
+  function hideArt() { layers[0].classList.remove("on"); layers[1].classList.remove("on"); }
+  function showArt(bg) {
+    artKey = bg ? bg.url : null;
+    if (!bg) { hideArt(); return; }
+    var pre = new Image();
+    pre.referrerPolicy = "no-referrer";
+    pre.onload = function () {
+      if (artKey !== bg.url) return;
+      var next = 1 - front;
+      layers[next].style.backgroundImage = 'url("' + bg.url + '")';
+      layers[next].style.backgroundPosition = bg.x + "% " + bg.y + "%";
+      layers[next].classList.add("on");
+      layers[front].classList.remove("on");
+      front = next;
+    };
+    pre.onerror = function () { if (artKey === bg.url) hideArt(); };
+    pre.src = bg.url;
   }
 
   // Campur warna ke putih supaya tetap terang dan teks/kartu terbaca.
@@ -76,11 +92,11 @@
     var card = out.querySelector(".bp-card");
     var icon = card && card.querySelector(".hero-ico img");
     var slug = slugOf(card);
-    var artUrl = slug && BGS[slug] ? BGS[slug] : null;
-    var src = artUrl || (icon ? icon.getAttribute("src") : null);
-    if (src === current) return;
-    current = src;
-    showArt(artUrl);
+    var src = icon ? icon.getAttribute("src") : null;
+    var key = (slug || "") + "|" + (src || "");
+    if (key === current) return;
+    current = key;
+    showArt(slug && BGS[slug] ? BGS[slug] : null);
     if (!src) { apply(null); return; }
     if (cache[src] !== undefined) { apply(cache[src]); return; }
     var probe = new Image();
@@ -88,9 +104,9 @@
       var cols = null;
       try { cols = colorsOf(probe); } catch (err) { cols = null; }
       cache[src] = cols;
-      if (current === src) apply(cols);
+      if (current === key) apply(cols);
     };
-    probe.onerror = function () { cache[src] = null; if (current === src) apply(null); };
+    probe.onerror = function () { cache[src] = null; if (current === key) apply(null); };
     probe.src = src;
   }
   new MutationObserver(update).observe(out, { childList: true, subtree: true });
