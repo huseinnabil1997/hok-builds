@@ -1007,3 +1007,11 @@ button, input, select { font-family: inherit; }
 
 /* Judul bagian di Ban & Pick: teks biasa, bukan kotak seperti tombol. */
 .bp-wrap .section-title { background: none; border: 0; border-radius: 0; padding: 0 !important; font-size: 1.05rem; }
+
+/* Latar gradien dari hero rekomendasi pick #1 (js/hero-bg.js). */
+@property --hero-bg-1 { syntax: "<color>"; inherits: true; initial-value: #f6f6f6; }
+@property --hero-bg-2 { syntax: "<color>"; inherits: true; initial-value: #f6f6f6; }
+body.hero-bg {
+  background: linear-gradient(165deg, var(--hero-bg-1, #f6f6f6) 0%, var(--hero-bg-2, #f6f6f6) 55%, #f6f6f6 100%) fixed;
+  transition: --hero-bg-1 0.8s ease, --hero-bg-2 0.8s ease;
+}
