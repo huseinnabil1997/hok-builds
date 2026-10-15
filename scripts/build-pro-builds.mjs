@@ -46,7 +46,7 @@ const SPELL = { "闪现": "Flash", "惩击": "Smite", "净化": "Purify", "斩�
 const unknown = { hero: {}, item: {}, arcana: {}, droppedComponents: 0 };
 let leagueIds = process.argv[2] ? process.argv[2].split(",") : null;
 const leagues = (await get(API + "/leagues/open")).results.sort((a, b) => b.start_time.localeCompare(a.start_time));
-if (!leagueIds) leagueIds = leagues.filter((l) => l.start_time >= "2025-01-01").map((l) => l.league_id);
+if (!leagueIds) leagueIds = leagues.filter((l) => l.start_time >= (process.env.PRO_SINCE || "2025-01-01")).map((l) => l.league_id);
 const lname = Object.fromEntries(leagues.map((l) => [l.league_id, l.league_name]));
 const builds = {}; let battlesRead = 0;
 const full = () => [...new Set(Object.values(heroMap))].every((s) => (raw[s] || []).length >= RAW_CAP);
@@ -103,29 +103,38 @@ let completed = 0, skipped = 0;
 for (const [slug, arr] of Object.entries(raw)) {
   const freq = {}; for (const b of arr) for (const it of b.raw) if (finished(it)) freq[it.id] = (freq[it.id] || 0) + 1;
   const ranked = Object.keys(freq).sort((a, b) => freq[b] - freq[a]).map((id) => items[id]);
-  const out = (builds[slug] = []);
+  const out = (builds[slug] = []), cands = [];
   for (const b of arr) {
-    if (out.length >= PER_HERO) break;
     const fin = [], seen = new Set(), comps = [];
     for (const it of b.raw) { if (finished(it)) { if (!seen.has(it.id)) { seen.add(it.id); fin.push(it); } } else comps.push(it); }
-    if (b.bad || fin.length < MIN_FINISHED || fin.length > 6 || fin.length + comps.length < 6) { skipped++; continue; }
+    if (b.bad || fin.length < 1 || fin.length > 6) { skipped++; continue; }
     const res = fin.map((it) => ({ id: +it.id, n: it.name, i: icon(it) }));
     let ok = true;
     for (const c of comps) {
       if (res.length >= 6) break;
       const boots = c.type === "Movement";
       const pick = ranked.find((f) => !seen.has(f.id) && (boots ? BOOTS.has(String(f.id)) : f.type === c.type && !BOOTS.has(String(f.id))) && !(boots && res.some((r) => BOOTS.has(String(r.id)))));
-      if (!pick) { ok = false; break; }
+      if (!pick) continue; // komponen tanpa kandidat: slot diisi di bawah
       seen.add(pick.id); res.push({ id: +pick.id, n: pick.name, i: icon(pick), predicted: true, from: c.name });
     }
+    // slot kosong (snapshot < 6 item): isi item jadi paling sering di build pro hero ini, tanpa duplikat, maks 1 sepatu
+    for (const f of ranked) {
+      if (res.length >= 6) break;
+      if (seen.has(f.id)) continue;
+      if (BOOTS.has(String(f.id)) && res.some((r) => BOOTS.has(String(r.id)))) continue;
+      seen.add(f.id); res.push({ id: +f.id, n: f.name, i: icon(f), predicted: true, from: "" });
+    }
     if (!ok || res.length !== 6) { skipped++; continue; }
-    completed += res.filter((r) => r.predicted).length;
-    const { raw: _r, bad: _b, ...rest } = b; out.push({ ...rest, items: res });
+    const { raw: _r, bad: _b, ...rest } = b; cands.push({ ...rest, tier: fin.length, items: res });
   }
+  // tangga cadangan: >=4 item jadi dulu, lalu 3, 2, 1 (terbaru dulu di tiap tingkat)
+  for (const t of [MIN_FINISHED, 3, 2, 1]) for (const c of cands) if (out.length < PER_HERO && (t === MIN_FINISHED ? c.tier >= t : c.tier === t)) out.push(c);
+  for (const c of out) completed += c.items.filter((r) => r.predicted).length;
+  skipped += cands.length - out.length;
 }
 const all = [...new Set(Object.values(heroMap))];
 const meta = { sumber: "KPL / pvp.qq.com matchdata (prod.comp.smoba.qq.com leaguesite API)", liga: leagueIds.filter((l) => lname[l]).map((l) => lname[l]), diambil: new Date().toISOString().slice(0, 10), battle: battlesRead,
-  filter_item: "item jadi = level 3 / harga >= 1500 gold / sepatu tier 2. Komponen diganti item jadi tipe sama yang paling sering dipakai hero ini di build pro lain (predicted:true). Build dengan < 4 item jadi, item non-global, atau tak bisa genap 6 dilewati.", item_dilengkapi: completed, build_dilewati: skipped,
+  filter_item: "item jadi = level 3 / harga >= 1500 gold / sepatu tier 2. Komponen diganti item jadi tipe sama yang paling sering dipakai hero ini di build pro lain (predicted:true). Slot kosong (maks 2) diisi item jadi paling sering di build pro hero ini (predicted:true). Prioritas build >=4 item jadi; kalau kurang dari 5 build, turun ke 3, 2, lalu 1 item jadi (field tier). Build dengan item yang sudah tidak ada di daftar item sekarang dilewati.", item_dilengkapi: completed, build_dilewati: skipped,
   hero_5: all.filter((s) => (builds[s] || []).length >= PER_HERO).length, hero_kurang: all.filter((s) => (builds[s] || []).length < PER_HERO).map((s) => `${s}:${(builds[s] || []).length}`),
   hero_tidak_dipetakan: unknown.hero, item_tidak_dikenal: unknown.item, arcana_tanpa_nama_en: unknown.arcana };
 fs.writeFileSync("data/pro-builds.js", "// Dibuat oleh scripts/build-pro-builds.mjs. Jangan edit manual.\nwindow.PRO_BUILDS = " + JSON.stringify({ meta, heroes: builds }) + ";\n");

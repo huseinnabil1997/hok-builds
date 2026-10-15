@@ -16,10 +16,10 @@
       '<div class="pro-sub">' + esc(b.date) + ' &middot; ' + esc(b.league) + (b.stage ? ' ' + esc(b.stage) : '') + ' &middot; Game ' + esc(b.game) + (b.mins ? ' &middot; ' + b.mins + ' mnt' : '') + '</div></div>' +
       '<span class="pro-res ' + (b.win ? 'win' : 'lose') + '">' + (b.win ? 'Menang' : 'Kalah') + '</span></div>' +
       '<div class="pro-kda">KDA <strong>' + b.k + '/' + b.d + '/' + b.a + '</strong>' + (b.pos ? ' &middot; ' + esc(b.pos) : '') + (b.spell ? ' &middot; Spell ' + esc(b.spell) : '') + '</div>' +
-      '<div class="pro-items">' + b.items.map(function (it) { return '<div class="pro-item' + (it.predicted ? ' predicted' : '') + '"' + (it.predicted ? ' title="Diperkirakan: komponen ' + esc(it.from) + ' dilengkapi"' : '') + '><img src="' + esc(it.i) + '" alt="' + esc(it.n) + '" loading="lazy"/><div class="iname">' + esc(it.n) + (it.predicted ? ' *' : '') + '</div></div>'; }).join("") + '</div>' +
+      '<div class="pro-items">' + b.items.map(function (it) { return '<div class="pro-item' + (it.predicted ? ' predicted' : '') + '"' + (it.predicted ? ' title="Diperkirakan' + (it.from ? ': komponen ' + esc(it.from) + ' dilengkapi' : ': slot kosong diisi item paling sering') + '"' : '') + '><img src="' + esc(it.i) + '" alt="' + esc(it.n) + '" loading="lazy"/><div class="iname">' + esc(it.n) + (it.predicted ? ' *' : '') + '</div></div>'; }).join("") + '</div>' +
       '<div class="pro-arcana">' + b.arcana.map(function (a) { return '<div class="pro-arc"><img src="' + esc(a.i) + '" alt="' + esc(a.n) + '" loading="lazy"/><span>' + esc(a.n) + ' x' + a.c + '</span></div>'; }).join("") + '</div>' +
       '</div>';
   });
-  if (list.some(function (b) { return b.items.some(function (it) { return it.predicted; }); })) h += '<p class="source-hint pro-note">* item diperkirakan: snapshot masih komponen, dilengkapi ke item jadi yang paling sering dipakai pro untuk hero ini.</p>';
+  if (list.some(function (b) { return b.items.some(function (it) { return it.predicted; }); })) h += '<p class="source-hint pro-note">* item diperkirakan: komponen atau slot kosong di snapshot, dilengkapi dengan item jadi yang paling sering dipakai pro untuk hero ini.</p>';
   box.innerHTML = h;
 })();
