@@ -1,8 +1,8 @@
-// Tes aturan skor duo/trio (aturan 2) untuk js/banpick-camp.js. Pakai: node scripts/test-combo-score.mjs
+// Tes aturan skor duo/trio (aturan 2) untuk js/banpick-camp.js dan js/banpick.js. Pakai: node scripts/test-combo-score.mjs
 import fs from "fs";
 import vm from "vm";
 let fail = 0;
-for (const file of ["js/banpick-camp.js"]) {
+for (const file of ["js/banpick-camp.js", "js/banpick.js"]) {
   const ctx = { window: {} }; vm.createContext(ctx); vm.runInContext(fs.readFileSync(file, "utf8"), ctx);
   const score = ctx.window.__comboScore;
   const same = (a, b) => a === b, nm = (s) => s;

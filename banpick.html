@@ -63,18 +63,21 @@
     <div class="formula-grid">
       <div class="formula-card">
         <h3>Skor pick (kandidat K)</h3>
-        <p class="formula">Skor = &Sigma; Counter(K &rarr; musuh) &minus; &Sigma; Counter(musuh &rarr; K) + &Sigma; Duo(K, tim kita) + &Sigma; Trio(K, tim kita)</p>
+        <p class="formula">Skor = &Sigma; Counter(K &rarr; musuh) &minus; &Sigma; Counter(musuh &rarr; K) + &Sigma; Trio lengkap(K, tim kita) + &Sigma; pasangan sisa max(Duo, Trio &times; 0,5)</p>
       </div>
       <div class="formula-card">
         <h3>Skor ban (kandidat K)</h3>
-        <p class="formula">Skor = &Sigma; Counter(K &rarr; tim kita) + &Sigma; Duo(K, musuh) + &Sigma; Trio(K, musuh)</p>
+        <p class="formula">Skor = &Sigma; Counter(K &rarr; tim kita) + &Sigma; Trio lengkap(K, musuh) + &Sigma; pasangan sisa max(Duo, Trio &times; 0,5)</p>
       </div>
     </div>
     <ul class="formula-notes">
       <li><strong>Counter(A &rarr; B)</strong> = <code>counter_index</code> jika B ada di daftar <em>Counter</em> milik A, atau A ada di daftar <em>Di-counter</em> milik B. Kalau tercatat di dua daftar, dipakai nilai terbesar (dihitung sekali).</li>
       <li><strong>Duo(A, B)</strong> = <code>synergy_index</code> duo antara A dan B (dari daftar duo A atau B, nilai terbesar, sekali).</li>
-      <li><strong>Trio (pick)</strong> = <code>synergy_index</code> trio yang memuat K hanya dihitung jika dua hero lain dari kombinasi itu sudah ada di tim kita (trio lengkap kalau K di-pick).</li>
-      <li><strong>Trio (ban)</strong> = sama, tapi dua hero lain sudah ada di musuh (ban K mengganggu trio musuh). Setiap kombinasi trio dihitung sekali (nilai terbesar jika tercatat lebih dari sekali).</li>
+      <li><strong>Aturan duo/trio</strong> (berlaku untuk pick dan ban, S = tim kita untuk pick, musuh untuk ban):
+        (1) <em>Trio lengkap</em>: tiap trio {K, X, Y} dengan X dan Y sudah di S dihitung penuh ("Trio dengan X dan Y"; <code>synergy_index</code> trio).
+        (2) Pasangan K-X dan K-Y dari trio lengkap itu ditandai sudah tertutup.
+        (3) Tiap X di S yang belum tertutup dihitung <em>sekali</em> = max(Duo(K, X), Trio{K, X, Z} &times; 0,5) untuk Z mana pun; kalau duo asli yang terbesar (atau seri) alasannya "Duo dengan X", kalau tidak "Bagian dari trio K-X-Z (x0,5)".
+        Tidak ada pasangan yang dihitung dua kali.</li>
       <li>Semua angka diambil apa adanya dari data. Tidak ada bobot tambahan atau angka karangan. Hero yang sudah di-ban / di-pick tidak direkomendasikan.</li>
       <li>Flowborn: data v2 menulis Flowborn per varian; entri lama &quot;Flowborn&quot; tanpa varian (jika masih ada) dicocokkan ke semua varian.</li>
       <li>Filter role dan lane hanya memotong rekomendasi pick. Hero lolos kalau salah satu role-nya dan salah satu lane-nya sedang nyala. Rekomendasi ban tidak ikut filter ini.</li>
@@ -86,7 +89,7 @@
 <footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
 <script src="data/banpick.js?v=20261013h"></script>
 <script src="data/hero-icons.js?v=20261014a"></script>
-<script src="js/banpick.js?v=20261014c"></script>
+<script src="js/banpick.js?v=20261015r2"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
 <script src="js/speech.js?v=20261014a"></script>
