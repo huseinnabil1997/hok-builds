@@ -1005,10 +1005,5 @@ button, input, select { font-family: inherit; }
 .hero-ico { border-color: var(--accent-line); background: var(--card-soft); color: #a87a2a; }
 .app-footer { color: var(--muted); }
 
-/* Filter role/lane: default semua chip .on (= semua ikut, belum ada filter).
-   Selama semua masih .on, tampil abu-abu seperti chip HoK Camp; emas hanya
-   kalau filter benar-benar menyaring (ada chip yang dimatikan). */
-.bp-roles:not(:has(.role-chip:not(.on))) .role-chip.on { background: var(--bg-elev); color: var(--muted); }
-.role-chip:not(.on) { background: var(--bg-elev); color: var(--muted-soft); }
 /* Judul bagian di Ban & Pick: teks biasa, bukan kotak seperti tombol. */
 .bp-wrap .section-title { background: none; border: 0; border-radius: 0; padding: 0 !important; font-size: 1.05rem; }
