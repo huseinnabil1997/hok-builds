@@ -1015,3 +1015,14 @@ body.hero-bg {
   background: linear-gradient(165deg, var(--hero-bg-1, #f6f6f6) 0%, var(--hero-bg-2, #f6f6f6) 55%, #f6f6f6 100%) fixed;
   transition: --hero-bg-1 0.8s ease, --hero-bg-2 0.8s ease;
 }
+
+/* Art hero #1 di bagian atas, memudar ke gradien (js/hero-bg.js). */
+body.hero-bg { position: relative; }
+.hero-art { position: absolute; top: 0; left: 0; right: 0; height: 48vh; min-height: 320px; z-index: -1; pointer-events: none; overflow: hidden; }
+.hero-art-layer { position: absolute; inset: 0; background-size: cover; background-position: center top; opacity: 0; transition: opacity 0.8s ease; }
+.hero-art-layer.on { opacity: 1; }
+.hero-art-fade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 35%, var(--hero-bg-1, #f6f6f6) 100%); transition: --hero-bg-1 0.8s ease; }
+body.hero-bg header.app-header { background: rgba(255,255,255,0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+body.hero-bg main, body.hero-bg footer { position: relative; }
+/* Di bawah art: mulai tepat di warna akhir fade supaya tanpa sambungan. */
+body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) max(48vh, 320px), var(--hero-bg-2, #f6f6f6) calc(max(48vh, 320px) + 60vh), #f6f6f6 100%); }

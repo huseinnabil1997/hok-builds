@@ -1,4 +1,5 @@
-// Latar Ban & Pick: gradien lembut dari warna ikon hero rekomendasi pick #1.
+// Latar Ban & Pick: art hero rekomendasi pick #1 di atas, memudar ke gradien warnanya.
+// Art: data/hero-bgs.js (img/heroes-bg). Tanpa art: gradien dari warna ikon saja.
 // Hanya membaca DOM hasil render (#out-pick); logika rekomendasi tidak disentuh.
 (function () {
   "use strict";
@@ -6,6 +7,22 @@
   if (!out || !window.MutationObserver) return;
   var root = document.documentElement, current = null, cache = {};
   document.body.classList.add("hero-bg");
+  var BGS = window.HERO_BGS || {};
+  // Dua lapis art untuk crossfade.
+  var art = document.createElement("div");
+  art.className = "hero-art";
+  art.setAttribute("aria-hidden", "true");
+  art.innerHTML = '<div class="hero-art-layer"></div><div class="hero-art-layer"></div><div class="hero-art-fade"></div>';
+  document.body.insertBefore(art, document.body.firstChild);
+  var layers = art.querySelectorAll(".hero-art-layer"), front = 0;
+  function showArt(url) {
+    if (!url) { layers[0].classList.remove("on"); layers[1].classList.remove("on"); return; }
+    var next = 1 - front;
+    layers[next].style.backgroundImage = 'url("' + url + '")';
+    layers[next].classList.add("on");
+    layers[front].classList.remove("on");
+    front = next;
+  }
 
   // Campur warna ke putih supaya tetap terang dan teks/kartu terbaca.
   function soft(c, keep) {
@@ -47,11 +64,23 @@
       root.style.removeProperty("--hero-bg-2");
     }
   }
+  function slugOf(card) {
+    var a = card && card.querySelector(".bp-title h3 a");
+    var m = a && /heroes\/([^\/]+)\.html/.exec(a.getAttribute("href"));
+    if (m) return m[1];
+    var img = card && card.querySelector(".hero-ico img");
+    var n = img && /([^\/]+)\.(png|jpe?g|webp)$/.exec(img.getAttribute("src"));
+    return n ? n[1] : null;
+  }
   function update() {
-    var img = out.querySelector(".bp-card .hero-ico img");
-    var src = img ? img.getAttribute("src") : null;
+    var card = out.querySelector(".bp-card");
+    var icon = card && card.querySelector(".hero-ico img");
+    var slug = slugOf(card);
+    var artUrl = slug && BGS[slug] ? BGS[slug] : null;
+    var src = artUrl || (icon ? icon.getAttribute("src") : null);
     if (src === current) return;
     current = src;
+    showArt(artUrl);
     if (!src) { apply(null); return; }
     if (cache[src] !== undefined) { apply(cache[src]); return; }
     var probe = new Image();
