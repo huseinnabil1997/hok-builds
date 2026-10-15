@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ban &amp; Pick HoK Camp - HoK S16</title>
+<link rel="stylesheet" href="css/style.css?v=20261015g"/>
+</head>
+<body>
+<header class="app-header">
+  <h1>Ban &amp; Pick HoK Camp</h1>
+  <p class="sub">Rekomendasi dari Compatibility duo/trio HoK Camp, tanpa counter | Global Season 16</p>
+  <nav class="top-nav"><a href="index.html">Daftar hero</a><a href="banpick.html">Ban &amp; Pick</a><a href="banpick-simple.html">Ban &amp; Pick Simpel</a><a href="banpick-camp.html" class="active">Ban &amp; Pick HoK Camp</a></nav>
+</header>
+<main class="wrap bp-wrap">
+  <section class="bp-inputs">
+    <div class="bp-field" data-list="ban">
+      <label for="in-ban">Hero di-ban</label>
+      <div class="chip-box"><div class="chips" id="chips-ban"></div><input id="in-ban" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-ban"></ul>
+    </div>
+    <div class="bp-field" data-list="ally">
+      <label for="in-ally">Hero tim kita</label>
+      <div class="chip-box"><div class="chips" id="chips-ally"></div><input id="in-ally" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-ally"></ul>
+    </div>
+    <div class="bp-field" data-list="enemy">
+      <label for="in-enemy">Hero musuh</label>
+      <div class="chip-box"><div class="chips" id="chips-enemy"></div><input id="in-enemy" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-enemy"></ul>
+    </div>
+    <div class="bp-actions"><button type="button" id="bp-reset">Reset semua</button><span class="bp-msg" id="bp-msg"></span></div>
+  </section>
+
+  <section class="bp-results">
+    <div class="bp-col">
+      <div class="bp-col-head"><h2 class="section-title">Rekomendasi pick</h2></div>
+      <div class="bp-roles" id="role-filter" role="group" aria-label="Filter role rekomendasi pick">
+        <button type="button" class="role-chip on" data-role="Tank" aria-pressed="true">Tank</button>
+        <button type="button" class="role-chip on" data-role="Fighter" aria-pressed="true">Fighter</button>
+        <button type="button" class="role-chip on" data-role="Assassin" aria-pressed="true">Assassin</button>
+        <button type="button" class="role-chip on" data-role="Mage" aria-pressed="true">Mage</button>
+        <button type="button" class="role-chip on" data-role="Marksman" aria-pressed="true">Marksman</button>
+        <button type="button" class="role-chip on" data-role="Support" aria-pressed="true">Support</button>
+      </div>
+      <div class="bp-roles" id="lane-filter" role="group" aria-label="Filter lane rekomendasi pick">
+        <button type="button" class="role-chip on" data-lane="Farm Lane" aria-pressed="true">Farm Lane</button>
+        <button type="button" class="role-chip on" data-lane="Mid Lane" aria-pressed="true">Mid Lane</button>
+        <button type="button" class="role-chip on" data-lane="Jungle" aria-pressed="true">Jungle</button>
+        <button type="button" class="role-chip on" data-lane="Roam" aria-pressed="true">Roam</button>
+        <button type="button" class="role-chip on" data-lane="Clash Lane" aria-pressed="true">Clash Lane</button>
+      </div>
+      <div id="out-pick" class="bp-list"></div>
+    </div>
+    <div class="bp-col">
+      <h2 class="section-title">Rekomendasi ban</h2>
+      <div id="out-ban" class="bp-list"></div>
+    </div>
+  </section>
+
+  <section class="bp-formula">
+    <h2 class="section-title">Cara hitung skor</h2>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <h3>Skor pick (kandidat K)</h3>
+        <p class="formula">Skor = &Sigma; Duo(K, tiap hero tim kita) + &Sigma; Trio(K + dua hero tim kita)</p>
+      </div>
+      <div class="formula-card">
+        <h3>Skor ban (kandidat K)</h3>
+        <p class="formula">Skor = &Sigma; Duo(K, tiap hero musuh) + &Sigma; Trio(K + dua hero musuh)</p>
+      </div>
+    </div>
+    <ul class="formula-notes">
+      <li>Data murni <strong>HoK Camp</strong>: angka <em>Compatibility</em> (%) di tab Pairings halaman detail hero (camp.honorofkings.com), diambil 2026-10-15. Angka dipakai apa adanya, tanpa normalisasi dan tanpa bobot.</li>
+      <li><strong>Tidak ada counter.</strong> Halaman ini cuma menghitung sinergi duo/trio. Untuk counter, pakai <a href="banpick.html">Ban &amp; Pick</a> atau <a href="banpick-simple.html">Ban &amp; Pick Simpel</a>.</li>
+      <li><strong>Pick:</strong> Duo dihitung untuk tiap hero tim kita yang punya pasangan dengan K. Trio hanya dihitung kalau dua hero lain di kombinasi itu sudah ada di tim kita.</li>
+      <li><strong>Ban:</strong> sama, tapi terhadap musuh. Ban K mencegah musuh melengkapi duo/trio terkuatnya.</li>
+      <li>Kombinasi yang tercatat di beberapa halaman hero dihitung sekali (nilai terbesar). Hero yang sudah di-ban / di-pick tidak direkomendasikan.</li>
+      <li>Wang Wei, Flowborn (Assassin), dan Flowborn (Roamer) tidak punya data Pairings di HoK Camp. Annette, Butterfly, Florentino, dan Lorion ada di HoK Camp tapi tidak ada di daftar hero situs ini, jadi dilewati.</li>
+      <li>Filter role dan lane hanya memotong rekomendasi pick. Hero lolos kalau salah satu role-nya dan salah satu lane-nya sedang nyala. Rekomendasi ban tidak ikut filter ini.</li>
+    </ul>
+  </section>
+</main>
+<footer class="app-footer">Sumber: HoK Camp, Pairings / Compatibility (diambil 2026-10-15) | build dari sheet situs</footer>
+<script src="data/banpick.js?v=20261013h"></script>
+<script src="data/hero-icons.js?v=20261014a"></script>
+<script src="data/hokcamp-combos.js?v=20261015a"></script>
+<script src="js/banpick-camp.js?v=20261015a"></script>
+<script src="data/hero-bgs.js?v=20261015b"></script>
+<script src="js/hero-bg.js?v=20261015d"></script>
+<script src="js/speech.js?v=20261014a"></script>
+</body>
+</html>
