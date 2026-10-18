@@ -2,7 +2,8 @@
   "use strict";
 
   // Skor duo/trio (aturan 2): trio lengkap dihitung penuh dan menutup pasangannya; pasangan K-X yang belum tertutup
-  // dihitung sekali = max(duo asli, trio{K,X,Z} x 0,5). Seri dimenangkan duo asli. Tidak ada pasangan dihitung dua kali.
+  // dihitung sekali = max(duo asli, trio{K,X,Z} x w). w = duo(K,X) / (duo(K,X) + duo(K,Z) + duo(X,Z));
+  // kalau jumlahnya 0, w = 0,5. Seri dimenangkan duo asli. Tidak ada pasangan dihitung dua kali.
   // trios: semua trio yang memuat k, bentuk { v, others: [a, b] }.
   function comboScore(k, team, duoFn, trios, same, nm, sfx) {
     var parts = [], total = 0, covered = {};
@@ -15,12 +16,18 @@
     });
     team.forEach(function (m) {
       if (covered[m]) return;
-      var d = duoFn(k, m) || 0, h = 0, z = null;
+      var d = duoFn(k, m) || 0, h = 0, z = null, wUsed = 0;
       trios.forEach(function (t) {
-        for (var i = 0; i < 2; i++) if (same(t.others[i], m) && t.v * 0.5 > h) { h = t.v * 0.5; z = t.others[1 - i]; }
+        for (var i = 0; i < 2; i++) {
+          if (!same(t.others[i], m)) continue;
+          var zSlug = t.others[1 - i];
+          var km = d, kz = duoFn(k, zSlug) || 0, mz = duoFn(m, zSlug) || 0;
+          var sum = km + kz + mz, w = sum ? km / sum : 0.5, part = t.v * w;
+          if (part > h) { h = part; z = zSlug; wUsed = w; }
+        }
       });
       if (d > 0 && d >= h) { total += d; parts.push({ cls: "plus", t: "Duo dengan " + nm(m) + sfx, v: d }); }
-      else if (h > 0) { total += h; parts.push({ cls: "plus", t: "Bagian dari trio " + nm(k) + "-" + nm(m) + "-" + nm(z) + " (x0,5)" + sfx, v: h }); }
+      else if (h > 0) { total += h; parts.push({ cls: "plus", t: "Bagian dari trio " + nm(k) + "-" + nm(m) + "-" + nm(z) + " (x" + fmt(wUsed) + ")" + sfx, v: h }); }
     });
     return { total: total, parts: parts };
   }
