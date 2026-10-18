@@ -63,11 +63,11 @@
     <div class="formula-grid">
       <div class="formula-card">
         <h3>Skor pick (kandidat K)</h3>
-        <p class="formula">Skor = &Sigma; Counter(K &rarr; musuh) &minus; &Sigma; Counter(musuh &rarr; K) + &Sigma; Trio lengkap(K, tim kita) + &Sigma; pasangan sisa max(Duo, Trio &times; 0,5)</p>
+        <p class="formula">Skor = &Sigma; Counter(K &rarr; musuh) &minus; &Sigma; Counter(musuh &rarr; K) + &Sigma; Trio lengkap(K, tim kita) + &Sigma; pasangan sisa max(Duo, Trio &times; w)</p>
       </div>
       <div class="formula-card">
         <h3>Skor ban (kandidat K)</h3>
-        <p class="formula">Skor = &Sigma; Counter(K &rarr; tim kita) + &Sigma; Trio lengkap(K, musuh) + &Sigma; pasangan sisa max(Duo, Trio &times; 0,5)</p>
+        <p class="formula">Skor = &Sigma; Counter(K &rarr; tim kita) + &Sigma; Trio lengkap(K, musuh) + &Sigma; pasangan sisa max(Duo, Trio &times; w)</p>
       </div>
     </div>
     <ul class="formula-notes">
@@ -76,20 +76,20 @@
       <li><strong>Aturan duo/trio</strong> (berlaku untuk pick dan ban, S = tim kita untuk pick, musuh untuk ban):
         (1) <em>Trio lengkap</em>: tiap trio {K, X, Y} dengan X dan Y sudah di S dihitung penuh ("Trio dengan X dan Y"; <code>synergy_index</code> trio).
         (2) Pasangan K-X dan K-Y dari trio lengkap itu ditandai sudah tertutup.
-        (3) Tiap X di S yang belum tertutup dihitung <em>sekali</em> = max(Duo(K, X), Trio{K, X, Z} &times; 0,5) untuk Z mana pun; kalau duo asli yang terbesar (atau seri) alasannya "Duo dengan X", kalau tidak "Bagian dari trio K-X-Z (x0,5)".
+        (3) Tiap X di S yang belum tertutup dihitung <em>sekali</em> = max(Duo(K, X), Trio{K, X, Z} &times; w) untuk Z mana pun. w = Duo(K, X) / (Duo(K, X) + Duo(K, Z) + Duo(X, Z)); kalau jumlahnya 0, w = 0,5. Kalau duo asli yang terbesar (atau seri) alasannya "Duo dengan X", kalau tidak "Bagian dari trio K-X-Z" plus pengali yang dipakai (misalnya x0,25).
         Tidak ada pasangan yang dihitung dua kali.</li>
       <li>Semua angka diambil apa adanya dari data. Tidak ada bobot tambahan atau angka karangan. Hero yang sudah di-ban / di-pick tidak direkomendasikan.</li>
       <li>Flowborn: data v2 menulis Flowborn per varian; entri lama &quot;Flowborn&quot; tanpa varian (jika masih ada) dicocokkan ke semua varian.</li>
       <li>Filter role dan lane hanya memotong rekomendasi pick. Hero lolos kalau salah satu role-nya dan salah satu lane-nya sedang nyala. Rekomendasi ban tidak ikut filter ini.</li>
       <li>Hero dengan lebih dari satu lane tetap muncul selama salah satu lane-nya nyala. Matiin Clash Lane hanya menghilangkan hero yang lane-nya cuma Clash Lane.</li>
     </ul>
-    <div class="note bp-cn-note"><strong>Catatan data:</strong> angka index (counter / sinergi), win rate, dan pick rate kemungkinan besar berasal dari data server CN, jadi rekomendasi ini mengikuti meta CN dan bisa berbeda dengan Global. Data juga tidak punya skor index per hero, jadi skor hanya dari counter dan sinergi terhadap hero yang dipilih. Hero yang hanya ada di CN tidak ditampilkan.</div>
+    <div class="note bp-cn-note"><strong>Catatan data:</strong> angka index (counter / sinergi), win rate, dan pick rate kemungkinan besar berasal dari data server CN, jadi rekomendasi ini mengikuti meta CN dan bisa berbeda dengan Global. Data juga tidak punya skor index per hero, jadi skor hanya dari counter dan sinergi terhadap hero yang dipilih.</div>
   </section>
 </main>
 <footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
-<script src="data/banpick.js?v=20261016a"></script>
+<script src="data/banpick.js?v=20261018a"></script>
 <script src="data/hero-icons.js?v=20261014a"></script>
-<script src="js/banpick.js?v=20261015r2"></script>
+<script src="js/banpick.js?v=20261018a"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
 <script src="js/speech.js?v=20261014a"></script>
