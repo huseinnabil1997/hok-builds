@@ -135,7 +135,6 @@ window.HERO_ICONS = {
   "zhang-fei": "img/heroes/zhang-fei.png",
   "zhao-huaizhen": "img/heroes/zhao-huaizhen.png",
   "zhou-yu": "img/heroes/zhou-yu.png",
-  "zhu-bajie": "img/heroes/zhu-bajie.png",
   "zhuangzi": "img/heroes/zhuangzi.png",
   "zilong": "img/heroes/zilong.png",
   "ziya": "img/heroes/ziya.png"
