@@ -66,5 +66,21 @@ for (const file of ["js/banpick-camp.js", "js/banpick.js"]) {
     const detail = got.parts.map((p) => p.t + "=" + p.v).join("; ") || "(kosong)";
     console.log(`${ok ? "OK  " : "GAGAL"} ${file} | ${c.label}: ${got.total} (harus ${c.want}) | ${detail}`);
   }
+  // Total poin tim (teamCombo): trio lengkap sekali + menutup 3 pasangannya, sisa pasangan pakai duo asli.
+  const teamCombo = ctx.window.__teamCombo;
+  const tcases = [
+    { duos: { "A+B": 1, "A+C": 2, "B+C": 3, "C+D": 4 }, team: ["A", "B", "C", "D"], trios: [{ h: ["A", "B", "C"], v: 5 }], want: 9, label: "trio A-B-C=5 menutup A-B, A-C, B-C; sisa duo C-D=4" },
+    { duos: { "A+B": 1.5 }, team: ["A", "B"], trios: [{ h: ["A", "B", "C"], v: 5 }], want: 1.5, label: "trio belum lengkap (C tidak di tim) -> cuma duo A-B" },
+    { duos: {}, team: ["A", "B", "C"], trios: [{ h: ["A", "B", "C"], v: 5 }, { h: ["B", "C", "A"], v: 6 }], want: 6, label: "trio sama dari dua daftar -> sekali, nilai terbesar" },
+    { duos: { "A+B": 2 }, team: [], trios: [], want: 0, label: "tim kosong -> 0" },
+  ];
+  for (const c of tcases) {
+    const duo = (a, b) => c.duos[[a, b].sort().join("+")] || 0;
+    const triosOf = (k) => c.trios.filter((t) => t.h.includes(k)).map((t) => ({ v: t.v, others: t.h.filter((x) => x !== k) }));
+    const got = teamCombo(c.team, duo, triosOf, (a, b) => a === b, (x) => x);
+    const ok = Math.abs(got.total - c.want) < 1e-9;
+    if (!ok) fail++;
+    console.log(`${ok ? "OK  " : "GAGAL"} ${file} | tim: ${c.label}: ${got.total} (harus ${c.want}) | ${got.parts.map((p) => p.t + "=" + p.v).join("; ") || "(kosong)"}`);
+  }
 }
 process.exit(fail ? 1 : 0);

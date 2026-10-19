@@ -99,6 +99,34 @@
     return { total: total, parts: parts };
   }
 
+  // Total hubungan tim: +1 tiap hero lawan yang di-counter hero tim, +1 tiap duo di dalam tim, +1 tiap trio lengkap di dalam tim.
+  function teamScore(team, opp) {
+    var parts = [], total = 0, seen = {};
+    team.forEach(function (a) { opp.forEach(function (e) { if (counterHit(a, e)) { total += 1; parts.push({ t: nm(a) + " counter " + nm(e) }); } }); });
+    for (var i = 0; i < team.length; i++) for (var j = i + 1; j < team.length; j++) {
+      if (duoHit(team[i], team[j])) { total += 1; parts.push({ t: "Duo " + nm(team[i]) + " + " + nm(team[j]) }); }
+    }
+    team.forEach(function (k) {
+      var rest = team.filter(function (m) { return m !== k; });
+      trioParts(k, rest, 2).forEach(function (t) {
+        var m = [k].concat(t.members.map(function (o) { return rest.filter(function (r) { return same(o, r); })[0]; }));
+        if (m.indexOf(undefined) >= 0) return;
+        m.sort(function (x, y) { return team.indexOf(x) - team.indexOf(y); });
+        var key = m.slice().sort().join("+"); if (seen[key]) return; seen[key] = true;
+        total += 1; parts.push({ t: "Trio " + m.map(nm).join(" + ") });
+      });
+    });
+    return { total: total, parts: parts };
+  }
+  function renderTotals() {
+    [["ally", state.ally, state.enemy], ["enemy", state.enemy, state.ally]].forEach(function (x) {
+      var el = document.getElementById("total-" + x[0]); if (!el) return;
+      var sc = teamScore(x[1], x[2]);
+      el.textContent = sc.total + " hubungan";
+      el.title = sc.parts.length ? sc.parts.map(function (p) { return p.t; }).join("\n") : "Belum ada poin";
+    });
+  }
+
   function taken() { return state.ban.concat(state.ally, state.enemy); }
 
   function card(k, sc, rank) {
@@ -112,6 +140,7 @@
   }
 
   function render() {
+    renderTotals();
     var t = taken();
     var cands = Object.keys(H).filter(function (k) { return t.indexOf(k) < 0; });
     var pickEl = document.getElementById("out-pick"), banEl = document.getElementById("out-ban");

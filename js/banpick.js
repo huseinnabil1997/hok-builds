@@ -31,7 +31,35 @@
     });
     return { total: total, parts: parts };
   }
+  // Total poin satu tim (dipakai badge di sebelah "Hero tim kita" / "Hero musuh"): trio lengkap di dalam tim
+  // dihitung sekali dan menutup ketiga pasangannya; pasangan sisa dihitung duo asli sekali. Trio x w tidak dipakai
+  // karena hero ketiga sudah pasti ada (trio lengkap) atau tidak ada. triosOf(k): trio yang memuat k, bentuk { v, others }.
+  function teamCombo(team, duoFn, triosOf, same, nm) {
+    var parts = [], total = 0, covered = {}, seen = {};
+    function member(o) { for (var i = 0; i < team.length; i++) if (same(o, team[i])) return team[i]; return null; }
+    function pk(a, b) { return [a, b].sort().join("+"); }
+    team.forEach(function (k) {
+      triosOf(k).forEach(function (t) {
+        var a = member(t.others[0]), b = member(t.others[1]);
+        if (!a || !b || a === b || a === k || b === k) return;
+        var m = [k, a, b].sort(function (x, y) { return team.indexOf(x) - team.indexOf(y); }), key = m.slice().sort().join("+");
+        if (!seen[key] || t.v > seen[key].v) seen[key] = { v: t.v, m: m };
+      });
+    });
+    Object.keys(seen).forEach(function (key) {
+      var t = seen[key], m = t.m;
+      total += t.v; covered[pk(m[0], m[1])] = covered[pk(m[0], m[2])] = covered[pk(m[1], m[2])] = true;
+      parts.push({ t: "Trio " + m.map(nm).join(" + "), v: t.v });
+    });
+    for (var i = 0; i < team.length; i++) for (var j = i + 1; j < team.length; j++) {
+      if (covered[pk(team[i], team[j])]) continue;
+      var d = duoFn(team[i], team[j]) || 0;
+      if (d > 0) { total += d; parts.push({ t: "Duo " + nm(team[i]) + " + " + nm(team[j]), v: d }); }
+    }
+    return { total: total, parts: parts };
+  }
   if (typeof window !== "undefined") window.__comboScore = comboScore;
+  if (typeof window !== "undefined") window.__teamCombo = teamCombo;
   var D = window.BANPICK_DATA;
   if (!D) return;
   var H = D.heroes, SEL = D.selectable;
@@ -128,6 +156,22 @@
     return { total: total, parts: parts };
   }
 
+  // Total poin tim: counter hero tim ke hero lawan + duo/trio di dalam tim (teamCombo). Di-counter lawan masuk ke total lawan.
+  function teamScore(team, opp) {
+    var parts = [], total = 0;
+    team.forEach(function (a) { opp.forEach(function (e) { var c = counterVal(a, e); if (c) { total += c; parts.push({ t: nm(a) + " counter " + nm(e), v: c }); } }); });
+    var c = teamCombo(team, duoVal, function (k) { return trioParts(k, team, 2).map(function (t) { return { v: t.v, others: t.members }; }); }, same, nm);
+    return { total: total + c.total, parts: parts.concat(c.parts) };
+  }
+  function renderTotals() {
+    [["ally", state.ally, state.enemy], ["enemy", state.enemy, state.ally]].forEach(function (x) {
+      var el = document.getElementById("total-" + x[0]); if (!el) return;
+      var sc = teamScore(x[1], x[2]);
+      el.textContent = fmt(sc.total) + " poin";
+      el.title = sc.parts.length ? sc.parts.map(function (p) { return p.t + ": +" + fmt(p.v); }).join("\n") : "Belum ada poin";
+    });
+  }
+
   function taken() { return state.ban.concat(state.ally, state.enemy); }
 
   function card(k, sc, rank) {
@@ -140,6 +184,7 @@
   }
 
   function render() {
+    renderTotals();
     var t = taken();
     var cands = Object.keys(H).filter(function (k) { return t.indexOf(k) < 0; });
     var pickEl = document.getElementById("out-pick"), banEl = document.getElementById("out-ban");

@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Ban &amp; Pick Simpel - HoK S16</title>
-<link rel="stylesheet" href="css/style.css?v=20261015g"/>
+<link rel="stylesheet" href="css/style.css?v=20261019a"/>
 </head>
 <body>
 <header class="app-header">
@@ -20,12 +20,12 @@
       <ul class="ac-list hidden" id="ac-ban"></ul>
     </div>
     <div class="bp-field" data-list="ally">
-      <label for="in-ally">Hero tim kita</label>
+      <label for="in-ally">Hero tim kita <span class="bp-total" id="total-ally">0 hubungan</span></label>
       <div class="chip-box"><div class="chips" id="chips-ally"></div><input id="in-ally" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
       <ul class="ac-list hidden" id="ac-ally"></ul>
     </div>
     <div class="bp-field" data-list="enemy">
-      <label for="in-enemy">Hero musuh</label>
+      <label for="in-enemy">Hero musuh <span class="bp-total" id="total-enemy">0 hubungan</span></label>
       <div class="chip-box"><div class="chips" id="chips-enemy"></div><input id="in-enemy" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
       <ul class="ac-list hidden" id="ac-enemy"></ul>
     </div>
@@ -71,6 +71,7 @@
       </div>
     </div>
     <ul class="formula-notes">
+      <li><strong>Total hubungan tim</strong> (badge di sebelah Hero tim kita / Hero musuh) = +1 tiap hero lawan yang di-counter hero tim, +1 tiap duo di dalam tim, +1 tiap trio lengkap di dalam tim. Arahkan kursor ke badge untuk rinciannya.</li>
       <li>Angka <code>counter_index</code> dan <code>synergy_index</code> tidak dipakai. Yang dihitung cuma ada atau tidaknya hubungan.</li>
       <li>Satu pasangan hero dihitung sekali, walaupun tercatat di dua daftar.</li>
       <li><strong>Pick:</strong> trio cuma kehitung kalau dua rekan lain dari kombinasi sudah di tim kita (trio lengkap). <strong>Ban:</strong> trio kehitung kalau dua hero kombinasi sudah ada di musuh.</li>
@@ -83,7 +84,7 @@
 <footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
 <script src="data/banpick.js?v=20261019c"></script>
 <script src="data/hero-icons.js?v=20261019b"></script>
-<script src="js/banpick-simple.js?v=20261019a"></script>
+<script src="js/banpick-simple.js?v=20261019b"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
 <script src="js/speech.js?v=20261014a"></script>
