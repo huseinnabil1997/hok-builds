@@ -147,11 +147,14 @@
       pickEl.innerHTML = banEl.innerHTML = '<p class="bp-empty">Pilih hero tim kita dan/atau hero musuh untuk melihat rekomendasi.</p>';
       return;
     }
+    // Role/lane kosong (belum ada data) tidak disaring: tetap ikut rekomendasi.
     function roleOk(k) {
+      if (!String(H[k].role || "").trim()) return true;
       var parts = String(H[k].role || "").split("/");
       return parts.some(function (p) { return roleOn[p.trim()]; });
     }
     function laneOk(k) {
+      if (!String(H[k].lane || "").trim()) return true;
       var parts = String(H[k].lane || "").split("/");
       return parts.some(function (p) { return laneOn[p.trim()]; });
     }
