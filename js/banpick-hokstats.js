@@ -2,38 +2,50 @@
   "use strict";
 
   // Ban & Pick versi hokstats.gg (data/hokstats-banpick.js, dibuat scripts/build-hokstats.mjs).
-  // hokstats cuma punya daftar counter ya/tidak ("Strong against" / "Countered by") tanpa angka, dan tidak punya duo/trio.
+  // hokstats cuma punya daftar ya/tidak tanpa angka: counter ("Strong against" / "Countered by") dan "Partners" (duo).
+  // Tidak ada trio.
   // Counter(A -> B) = B ada di "Strong against" A, atau A ada di "Countered by" B. Dihitung sekali per pasangan.
   function counterHit(H, a, b) {
     var ha = H[a], hb = H[b];
     return !!((ha && ha.strong.indexOf(b) >= 0) || (hb && hb.weak.indexOf(a) >= 0));
   }
-  // Skor pick K: +1 tiap musuh yang di-counter K, -1 tiap musuh yang nge-counter K.
-  // Skor ban K: +1 tiap hero tim kita yang di-counter K.
-  // Total tim: +1 tiap pasangan (hero tim -> hero lawan) yang di-counter. Di-counter lawan masuk ke total lawan.
+  // Partner(A, B) = B ada di "Partners" A atau A ada di "Partners" B. Dihitung sekali per pasangan.
+  function partnerHit(H, a, b) {
+    var ha = H[a], hb = H[b];
+    return !!((ha && (ha.partners || []).indexOf(b) >= 0) || (hb && (hb.partners || []).indexOf(a) >= 0));
+  }
+  // Skor pick K: +1 tiap musuh yang di-counter K, -1 tiap musuh yang nge-counter K, +1 tiap partner K di tim kita.
+  // Skor ban K: +1 tiap hero tim kita yang di-counter K, +1 tiap partner K di tim musuh.
+  // Total tim: +1 tiap pasangan (hero tim -> hero lawan) yang di-counter, +1 tiap pasangan partner di dalam tim.
+  // Di-counter lawan masuk ke total lawan.
   function pickScore(H, k, ally, enemy, nm) {
     var parts = [], total = 0;
     enemy.forEach(function (e) {
       if (counterHit(H, k, e)) { total += 1; parts.push({ cls: "plus", t: "Counter " + nm(e), v: 1 }); }
       if (counterHit(H, e, k)) { total -= 1; parts.push({ cls: "minus", t: "Di-counter " + nm(e), v: -1 }); }
     });
+    ally.forEach(function (a) { if (partnerHit(H, k, a)) { total += 1; parts.push({ cls: "plus", t: "Partner " + nm(a), v: 1 }); } });
     return { total: total, parts: parts };
   }
-  function banScore(H, k, ally, nm) {
+  function banScore(H, k, ally, enemy, nm) {
     var parts = [], total = 0;
     ally.forEach(function (a) { if (counterHit(H, k, a)) { total += 1; parts.push({ cls: "plus", t: "Counter " + nm(a) + " (tim kita)", v: 1 }); } });
+    enemy.forEach(function (e) { if (partnerHit(H, k, e)) { total += 1; parts.push({ cls: "plus", t: "Partner " + nm(e) + " (musuh)", v: 1 }); } });
     return { total: total, parts: parts };
   }
   function teamScore(H, team, opp, nm) {
     var parts = [], total = 0;
     team.forEach(function (a) { opp.forEach(function (e) { if (counterHit(H, a, e)) { total += 1; parts.push({ t: nm(a) + " counter " + nm(e), v: 1 }); } }); });
+    for (var i = 0; i < team.length; i++) for (var j = i + 1; j < team.length; j++) {
+      if (partnerHit(H, team[i], team[j])) { total += 1; parts.push({ t: "Partner " + nm(team[i]) + " + " + nm(team[j]), v: 1 }); }
+    }
     return { total: total, parts: parts };
   }
   // Urutan: skor dulu, lalu win rate (pick) / ban rate (ban) resmi HOK Camp, lalu nama.
   function rank(rows, H, key, nm) {
     return rows.sort(function (a, b) { return b.s.total - a.s.total || (H[b.k][key] || 0) - (H[a.k][key] || 0) || nm(a.k).localeCompare(nm(b.k)); });
   }
-  if (typeof window !== "undefined") window.__hokstats = { counterHit: counterHit, pickScore: pickScore, banScore: banScore, teamScore: teamScore, rank: rank };
+  if (typeof window !== "undefined") window.__hokstats = { counterHit: counterHit, partnerHit: partnerHit, pickScore: pickScore, banScore: banScore, teamScore: teamScore, rank: rank };
 
   var D = window.HOKSTATS;
   if (!D) return;
@@ -79,8 +91,8 @@
     [["ally", state.ally, state.enemy], ["enemy", state.enemy, state.ally]].forEach(function (x) {
       var el = document.getElementById("total-" + x[0]); if (!el) return;
       var sc = teamScore(H, x[1], x[2], nm);
-      el.textContent = sc.total + " counter";
-      el.title = sc.parts.length ? sc.parts.map(function (p) { return p.t; }).join("\n") : "Belum ada poin";
+      el.textContent = sc.total + " poin";
+      el.title = sc.parts.length ? sc.parts.map(function (p) { return p.t + ": +1"; }).join("\n") : "Belum ada poin";
     });
   }
 
@@ -112,8 +124,8 @@
     var anyLane = LANES.some(function (l) { return laneOn[l]; });
     if (!anyRole) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu role.</p>';
     else if (!anyLane) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu lane.</p>';
-    else list(function (k) { return pickScore(H, k, state.ally, state.enemy, nm); }, pickEl, "Belum ada hero role dan lane ini yang meng-counter musuh (data counter hokstats).", "wr", true);
-    list(function (k) { return banScore(H, k, state.ally, nm); }, banEl, "Belum ada hero yang tercatat meng-counter tim kita (data counter hokstats).", "br", false);
+    else list(function (k) { return pickScore(H, k, state.ally, state.enemy, nm); }, pickEl, "Belum ada hero role dan lane ini dengan counter / partner yang cocok (data hokstats).", "wr", true);
+    list(function (k) { return banScore(H, k, state.ally, state.enemy, nm); }, banEl, "Belum ada hero yang meng-counter tim kita atau jadi partner musuh (data hokstats).", "br", false);
   }
 
   function setMsg(m) { var el = document.getElementById("bp-msg"); el.textContent = m || ""; }
@@ -167,6 +179,6 @@
   bindChips("role-filter", "data-role", roleOn);
   bindChips("lane-filter", "data-lane", laneOn);
   var metaEl = document.getElementById("hs-meta"), M = D.meta || {};
-  if (metaEl && M.diambil) metaEl.insertAdjacentHTML("beforeend", " Diambil " + esc(String(M.diambil).slice(0, 10)) + "; " + esc(M.popularitas_sumber || "") + "; " + (M.hero || 0) + " hero, " + (M.relasi_counter || 0) + " relasi counter.");
+  if (metaEl && M.diambil) metaEl.insertAdjacentHTML("beforeend", " Diambil " + esc(String(M.diambil).slice(0, 10)) + "; " + esc(M.popularitas_sumber || "") + "; " + (M.hero || 0) + " hero, " + (M.relasi_counter || 0) + " relasi counter, " + (M.pasangan_partner || 0) + " pasangan partner.");
   render();
 })();
