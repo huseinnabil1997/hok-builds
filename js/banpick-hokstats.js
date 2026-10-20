@@ -41,11 +41,14 @@
     }
     return { total: total, parts: parts };
   }
-  // Urutan: skor dulu, lalu win rate (pick) / ban rate (ban) resmi HOK Camp, lalu nama.
+  // Urutan: skor dulu, lalu tier editorial hokstats (S+ > S > A > B > C > D; data saat ini cuma S/A/B/C, tanpa tier paling
+  // belakang), lalu win rate (pick) / ban rate (ban) resmi HOK Camp, lalu nama. Tier dan rate tidak menambah skor.
+  var TIERS = ["S+", "S", "A", "B", "C", "D"];
+  function tierRank(t) { var i = TIERS.indexOf(String(t || "").toUpperCase()); return i < 0 ? TIERS.length : i; }
   function rank(rows, H, key, nm) {
-    return rows.sort(function (a, b) { return b.s.total - a.s.total || (H[b.k][key] || 0) - (H[a.k][key] || 0) || nm(a.k).localeCompare(nm(b.k)); });
+    return rows.sort(function (a, b) { return b.s.total - a.s.total || tierRank(H[a.k].tier) - tierRank(H[b.k].tier) || (H[b.k][key] || 0) - (H[a.k][key] || 0) || nm(a.k).localeCompare(nm(b.k)); });
   }
-  if (typeof window !== "undefined") window.__hokstats = { counterHit: counterHit, partnerHit: partnerHit, pickScore: pickScore, banScore: banScore, teamScore: teamScore, rank: rank };
+  if (typeof window !== "undefined") window.__hokstats = { counterHit: counterHit, partnerHit: partnerHit, pickScore: pickScore, banScore: banScore, teamScore: teamScore, rank: rank, tierRank: tierRank };
 
   var D = window.HOKSTATS;
   if (!D) return;

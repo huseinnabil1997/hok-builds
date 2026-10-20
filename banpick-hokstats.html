@@ -74,9 +74,9 @@
     <ul class="formula-notes">
       <li><strong>Counter(A &rarr; B)</strong> = B ada di daftar <em>Strong against</em> A, atau A ada di daftar <em>Countered by</em> B, di halaman <a href="https://hokstats.gg/counters/" rel="noopener">hokstats.gg/counters</a>. Data ini cuma ya/tidak (tanpa angka index), jadi tiap relasi bernilai 1 dan dihitung sekali per pasangan.</li>
       <li><strong>Partner(A, B)</strong> = B ada di daftar <em>Partners</em> A, atau A ada di daftar <em>Partners</em> B, di kotak Matchups halaman hero hokstats (<code>hokstats.gg/heroes/&lt;hero&gt;/</code>). Juga ya/tidak tanpa angka: tiap pasangan bernilai 1, dihitung sekali. Tidak ada data trio.</li>
-      <li><strong>Seri</strong> diurutkan dengan win rate resmi HOK Camp (pick) atau ban rate resmi HOK Camp (ban), lalu nama. Rate tidak menambah skor.</li>
+      <li><strong>Seri</strong> diurutkan dengan tier editorial hokstats (S+ &gt; S &gt; A &gt; B &gt; C &gt; D; data saat ini berisi S, A, B, C; hero tanpa tier paling belakang), lalu win rate resmi HOK Camp (pick) atau ban rate resmi HOK Camp (ban), lalu nama. Tier dan rate tidak menambah skor.</li>
       <li><strong>Total poin di sebelah Hero tim kita / Hero musuh</strong> = jumlah pasangan (hero tim &rarr; hero lawan) yang di-counter + jumlah pasangan partner di dalam tim. Di-counter lawan tidak mengurangi; nilainya masuk ke total lawan. Arahkan kursor ke badge untuk rinciannya.</li>
-      <li>Kartu menampilkan WR / PR / BR (ranked, region 608, semua rank, dari HOK Camp lewat hokstats) dan tier editorial hokstats. Tier editorial bukan statistik pertandingan dan tidak dipakai di skor.</li>
+      <li>Kartu menampilkan WR / PR / BR (ranked, region 608, semua rank, dari HOK Camp lewat hokstats) dan tier editorial hokstats. Tier editorial bukan statistik pertandingan; hanya dipakai untuk urutan saat skor seri, tidak menambah skor.</li>
       <li>Role dan lane diambil dari hokstats. Filter role dan lane hanya memotong rekomendasi pick. Hero lolos kalau salah satu role-nya dan salah satu lane-nya sedang nyala.</li>
       <li>Hero yang sudah di-ban / di-pick tidak direkomendasikan. Semua angka diambil apa adanya dari data; tidak ada bobot tambahan.</li>
     </ul>
@@ -86,7 +86,7 @@
 <footer class="app-footer">Sumber: <a href="https://hokstats.gg/" rel="noopener">HoKStats.gg</a> (counter, partner, popularitas HOK Camp, tier editorial) | build dari sheet situs</footer>
 <script src="data/hokstats-banpick.js?v=20261020b"></script>
 <script src="data/hero-icons.js?v=20261019b"></script>
-<script src="js/banpick-hokstats.js?v=20261020b"></script>
+<script src="js/banpick-hokstats.js?v=20261020c"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
 <script src="js/speech.js?v=20261014a"></script>

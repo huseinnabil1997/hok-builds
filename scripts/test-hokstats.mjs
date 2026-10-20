@@ -23,5 +23,8 @@ check("total tim {B,C} vs {A,D}: B->A, partner B-C", S.teamScore(H, ["B", "C"], 
 check("total tim {C,D}: partner C-D dua arah dihitung sekali", S.teamScore(H, ["C", "D"], [], nm).total, 1);
 check("total tim kosong", S.teamScore(H, [], ["A"], nm).total, 0);
 const rows = [{ k: "x", s: { total: 1 } }, { k: "y", s: { total: 1 } }, { k: "z", s: { total: 2 } }];
-check("urutan skor lalu wr", S.rank(rows, { x: { wr: 50 }, y: { wr: 52 }, z: { wr: 40 } }, "wr", nm).map((r) => r.k).join(","), "z,y,x");
+check("urutan skor lalu wr (tier sama)", S.rank(rows, { x: { wr: 50, tier: "B" }, y: { wr: 52, tier: "B" }, z: { wr: 40, tier: "C" } }, "wr", nm).map((r) => r.k).join(","), "z,y,x");
+const rows2 = [{ k: "c", s: { total: 1 } }, { k: "s", s: { total: 1 } }, { k: "n", s: { total: 1 } }, { k: "a", s: { total: 1 } }, { k: "top", s: { total: 2 } }];
+check("seri: tier S > A > C > tanpa tier, walau WR lebih rendah; skor tetap nomor satu", S.rank(rows2, { c: { wr: 60, tier: "C" }, s: { wr: 40, tier: "S" }, n: { wr: 70, tier: null }, a: { wr: 45, tier: "A" }, top: { wr: 1, tier: "C" } }, "wr", nm).map((r) => r.k).join(","), "top,s,a,c,n");
+check("tierRank S+ < S < D < tanpa tier", [S.tierRank("S+"), S.tierRank("S"), S.tierRank("D"), S.tierRank(null)].join(","), "0,1,5,6");
 process.exit(fail ? 1 : 0);
