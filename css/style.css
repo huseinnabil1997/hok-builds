@@ -1077,3 +1077,4 @@ body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, 
 .pro-item.predicted img { border-style: dashed; opacity: .82; }
 .pro-note { margin-top: .5rem; }
 .bp-total { display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.5rem; border-radius: 32px; font-size: 0.78rem; font-weight: 800; text-transform: none; letter-spacing: 0; color: #a87a2a; background: var(--accent-soft); border: 1px solid var(--accent-line); cursor: help; }
+.bp-why li.bp-stat { color: var(--muted); font-size: 0.78rem; }

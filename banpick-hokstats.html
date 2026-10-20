@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ban &amp; Pick hokstats - HoK S16</title>
+<link rel="stylesheet" href="css/style.css?v=20261020a"/>
+</head>
+<body>
+<header class="app-header">
+  <h1>Ban &amp; Pick hokstats</h1>
+  <p class="sub">Rekomendasi pick &amp; ban dari data counter hokstats.gg (server internasional), tanpa sinergi | Global Season 16</p>
+  <nav class="top-nav"><a href="index.html">Daftar hero</a><a href="banpick.html">Ban &amp; Pick</a><a href="banpick-simple.html">Ban &amp; Pick Simpel</a><a href="banpick-camp.html">Ban &amp; Pick HoK Camp</a><a href="banpick-hokstats.html" class="active">Ban &amp; Pick hokstats</a></nav>
+</header>
+<main class="wrap bp-wrap">
+  <section class="bp-inputs">
+    <div class="bp-field" data-list="ban">
+      <label for="in-ban">Hero di-ban</label>
+      <div class="chip-box"><div class="chips" id="chips-ban"></div><input id="in-ban" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-ban"></ul>
+    </div>
+    <div class="bp-field" data-list="ally">
+      <label for="in-ally">Hero tim kita <span class="bp-total" id="total-ally">0 counter</span></label>
+      <div class="chip-box"><div class="chips" id="chips-ally"></div><input id="in-ally" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-ally"></ul>
+    </div>
+    <div class="bp-field" data-list="enemy">
+      <label for="in-enemy">Hero musuh <span class="bp-total" id="total-enemy">0 counter</span></label>
+      <div class="chip-box"><div class="chips" id="chips-enemy"></div><input id="in-enemy" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
+      <ul class="ac-list hidden" id="ac-enemy"></ul>
+    </div>
+    <div class="bp-actions"><button type="button" id="bp-reset">Reset semua</button><span class="bp-msg" id="bp-msg"></span></div>
+  </section>
+
+  <section class="bp-results">
+    <div class="bp-col">
+      <div class="bp-col-head"><h2 class="section-title">Rekomendasi pick</h2></div>
+      <div class="bp-roles" id="role-filter" role="group" aria-label="Filter role rekomendasi pick">
+        <button type="button" class="role-chip on" data-role="Tank" aria-pressed="true">Tank</button>
+        <button type="button" class="role-chip on" data-role="Fighter" aria-pressed="true">Fighter</button>
+        <button type="button" class="role-chip on" data-role="Assassin" aria-pressed="true">Assassin</button>
+        <button type="button" class="role-chip on" data-role="Mage" aria-pressed="true">Mage</button>
+        <button type="button" class="role-chip on" data-role="Marksman" aria-pressed="true">Marksman</button>
+        <button type="button" class="role-chip on" data-role="Support" aria-pressed="true">Support</button>
+      </div>
+      <div class="bp-roles" id="lane-filter" role="group" aria-label="Filter lane rekomendasi pick">
+        <button type="button" class="role-chip on" data-lane="Farm Lane" aria-pressed="true">Farm Lane</button>
+        <button type="button" class="role-chip on" data-lane="Mid Lane" aria-pressed="true">Mid Lane</button>
+        <button type="button" class="role-chip on" data-lane="Jungle" aria-pressed="true">Jungle</button>
+        <button type="button" class="role-chip on" data-lane="Roam" aria-pressed="true">Roam</button>
+        <button type="button" class="role-chip on" data-lane="Clash Lane" aria-pressed="true">Clash Lane</button>
+      </div>
+      <div id="out-pick" class="bp-list"></div>
+    </div>
+    <div class="bp-col">
+      <h2 class="section-title">Rekomendasi ban</h2>
+      <div id="out-ban" class="bp-list"></div>
+    </div>
+  </section>
+
+
+  <section class="bp-formula">
+    <h2 class="section-title">Cara hitung skor</h2>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <h3>Skor pick (kandidat K)</h3>
+        <p class="formula">Skor = (jumlah musuh yang di-counter K) &minus; (jumlah musuh yang nge-counter K)</p>
+      </div>
+      <div class="formula-card">
+        <h3>Skor ban (kandidat K)</h3>
+        <p class="formula">Skor = jumlah hero tim kita yang di-counter K</p>
+      </div>
+    </div>
+    <ul class="formula-notes">
+      <li><strong>Counter(A &rarr; B)</strong> = B ada di daftar <em>Strong against</em> A, atau A ada di daftar <em>Countered by</em> B, di halaman <a href="https://hokstats.gg/counters/" rel="noopener">hokstats.gg/counters</a>. Data ini cuma ya/tidak (tanpa angka index), jadi tiap relasi bernilai 1 dan dihitung sekali per pasangan.</li>
+      <li><strong>Seri</strong> diurutkan dengan win rate resmi HOK Camp (pick) atau ban rate resmi HOK Camp (ban), lalu nama. Rate tidak menambah skor.</li>
+      <li><strong>Total di sebelah Hero tim kita / Hero musuh</strong> = jumlah pasangan (hero tim &rarr; hero lawan) yang di-counter. Di-counter lawan tidak mengurangi; nilainya masuk ke total lawan. Arahkan kursor ke badge untuk rinciannya.</li>
+      <li><strong>Tidak ada duo/trio:</strong> hokstats.gg tidak menerbitkan data sinergi, jadi halaman ini tidak menilai kombinasi tim. Pakai tab Ban &amp; Pick lain untuk sinergi.</li>
+      <li>Kartu menampilkan WR / PR / BR (ranked, region 608, semua rank, dari HOK Camp lewat hokstats) dan tier editorial hokstats. Tier editorial bukan statistik pertandingan dan tidak dipakai di skor.</li>
+      <li>Role dan lane diambil dari hokstats. Filter role dan lane hanya memotong rekomendasi pick. Hero lolos kalau salah satu role-nya dan salah satu lane-nya sedang nyala.</li>
+      <li>Hero yang sudah di-ban / di-pick tidak direkomendasikan. Semua angka diambil apa adanya dari data; tidak ada bobot tambahan.</li>
+    </ul>
+    <div class="note bp-cn-note" id="hs-meta"><strong>Catatan data:</strong> sumber <a href="https://hokstats.gg/" rel="noopener">HoKStats.gg</a> (Arena Index / TOTM Tech, fan site, tidak berafiliasi dengan Tencent). Data server internasional, diperbarui dengan <code>node scripts/build-hokstats.mjs</code>.</div>
+  </section>
+</main>
+<footer class="app-footer">Sumber: <a href="https://hokstats.gg/" rel="noopener">HoKStats.gg</a> (counter, popularitas HOK Camp, tier editorial) | build dari sheet situs</footer>
+<script src="data/hokstats-banpick.js?v=20261020a"></script>
+<script src="data/hero-icons.js?v=20261019b"></script>
+<script src="js/banpick-hokstats.js?v=20261020a"></script>
+<script src="data/hero-bgs.js?v=20261015b"></script>
+<script src="js/hero-bg.js?v=20261015d"></script>
+<script src="js/speech.js?v=20261014a"></script>
+</body>
+</html>
