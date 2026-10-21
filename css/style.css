@@ -1051,6 +1051,15 @@ body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, 
   body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) calc(var(--hero-art-top, 0px) + max(62vh, 380px)), var(--hero-bg-2, #f6f6f6) calc(var(--hero-art-top, 0px) + max(62vh, 380px) + 60vh), #f6f6f6 100%); }
 }
 @media (prefers-reduced-motion: reduce) { body.hero-bg .wrap, .hero-art-layer, .hero-art-fade, body.hero-bg { transition: none; } }
+/* Latar hero diam saat halaman di-scroll: art + gradien di lapisan position:fixed (bukan
+   background-attachment:fixed, yang tidak jalan di iOS Safari). Konten bergulir di atasnya. */
+.hero-art { position: fixed; }
+body.hero-bg { background: #f6f6f6; }
+body.hero-bg::before { content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) calc(var(--hero-art-top, 0px) + max(46vh, 300px)), var(--hero-bg-2, #f6f6f6) calc(var(--hero-art-top, 0px) + max(46vh, 300px) + 60vh), #f6f6f6 100%); }
+@media (min-width: 561px) {
+  body.hero-bg::before { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) calc(var(--hero-art-top, 0px) + max(62vh, 380px)), var(--hero-bg-2, #f6f6f6) calc(var(--hero-art-top, 0px) + max(62vh, 380px) + 60vh), #f6f6f6 100%); }
+}
 
 /* Build Pro KPL (halaman hero) */
 .pro-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0 0 .6rem; margin-bottom: 1rem; overflow: hidden; }
