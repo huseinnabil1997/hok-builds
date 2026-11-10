@@ -1092,6 +1092,7 @@ body.hero-bg::before { content: ""; position: fixed; inset: 0; z-index: -2; poin
 .ph-who { font-size: 0.85rem; color: var(--text-strong); font-weight: 600; }
 .ph-history { margin-top: 1.25rem; }
 .ph-total { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--muted); }
+.ph-base { margin: 0 0 0.4rem; font-size: 0.8rem; color: var(--muted); }
 .ph-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.4rem; }
 .ph-rows li { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.6rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; }
 .ph-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -39,8 +39,8 @@
     return { total: total, parts: parts };
   }
 
-  // Riwayat pick: jumlah berapa kali user pernah pick hero. Belum ada sumbernya, jadi 0 untuk semua hero.
-  // Nanti cukup pasang window.getHeroPickCount = function (slug) { return n; } (mis. dari Supabase) lalu render ulang.
+  // Jumlah hero dipakai user. Diisi js/pick-history.js lewat window.getHeroPickCount (match HoK Camp + riwayat pick
+  // Supabase); tanpa login 0 untuk semua hero.
   function getPickCount(slug) {
     var f = typeof window !== "undefined" && window.getHeroPickCount;
     var n = typeof f === "function" ? Number(f(slug)) : 0;

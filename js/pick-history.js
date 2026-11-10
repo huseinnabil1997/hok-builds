@@ -4,13 +4,18 @@
   // Riwayat pick (Supabase, tabel pick_history). Bagian murni (create) bisa dites tanpa DOM / jaringan.
   // Satu baris = satu kali hero dipakai di tim kita. Sumber: 'rekomendasi' (pencet kartu) atau 'manual' (ketik).
   // Undo: kalau hero dilepas lagi dari tim kita di draft yang sama, baris yang baru dibuat ikut dihapus.
+  // Data awal HoK Camp (tabel hero_usage_baseline: jumlah match per hero) ikut dimuat dan dijumlahkan di used().
+  // Kalau tabel itu gagal dimuat, riwayat pick tetap jalan tanpa data awal.
   function create(client, opts) {
     opts = opts || {};
     var table = opts.table || "pick_history";
+    var baseTable = opts.baselineTable || "hero_usage_baseline";
     var onChange = opts.onChange || function () {};
     var rows = [];      // { id, hero_slug, source, created_at }, terbaru dulu
     var draft = {};     // slug -> { p: Promise<id|null>, cancelled: bool }
     var enabled = false;
+    var base = {};      // slug -> matches (HoK Camp)
+    var baseInfo = null; // { heroes, matches, updated } kalau ada baris
 
     function counts() {
       var c = {};
@@ -18,6 +23,8 @@
       return c;
     }
     function count(slug) { var n = 0; rows.forEach(function (r) { if (r.hero_slug === slug) n++; }); return n; }
+    function baseline(slug) { return base[slug] || 0; }
+    function used(slug) { return baseline(slug) + count(slug); }
     function changed() { try { onChange(api); } catch (e) { /* UI saja */ } }
 
     function load() {
@@ -30,9 +37,25 @@
             return (res.data || []).length === PAGE ? page(from + PAGE) : all;
           });
       }
-      return page(0).then(function (data) { rows = data; enabled = true; draft = {}; changed(); return rows; });
+      return Promise.all([page(0), loadBaseline()]).then(function (r) { rows = r[0]; enabled = true; draft = {}; changed(); return rows; });
     }
-    function clear() { rows = []; draft = {}; enabled = false; changed(); }
+    function setBaseline(data) {
+      base = {}; baseInfo = null;
+      (data || []).forEach(function (r) {
+        var n = Number(r.matches);
+        if (!r.hero_slug || !isFinite(n) || n < 0) return;
+        base[r.hero_slug] = n;
+        if (!baseInfo) baseInfo = { heroes: 0, matches: 0, updated: null };
+        baseInfo.heroes++; baseInfo.matches += n;
+        if (r.updated_at && (!baseInfo.updated || r.updated_at > baseInfo.updated)) baseInfo.updated = r.updated_at;
+      });
+    }
+    function loadBaseline() {
+      return Promise.resolve().then(function () { return client.from(baseTable).select("hero_slug,matches,updated_at").range(0, 999); })
+        .then(function (res) { if (res.error) throw res.error; setBaseline(res.data); })
+        .catch(function (e) { setBaseline([]); if (opts.onBaselineError) opts.onBaselineError(e); });
+    }
+    function clear() { rows = []; draft = {}; enabled = false; setBaseline([]); changed(); }
 
     function del(id) {
       return client.from(table).delete().eq("id", id).then(function (res) {
@@ -85,6 +108,7 @@
     var api = {
       load: load, clear: clear, record: record, undo: undo, newDraft: newDraft, removeOne: removeOne,
       counts: counts, count: count, total: function () { return rows.length; },
+      baseline: baseline, used: used, baselineInfo: function () { return baseInfo; },
       enabled: function () { return enabled; }, pending: function () { return Object.keys(draft); },
     };
     return api;
@@ -110,11 +134,18 @@
   try { client = lib.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); }
   catch (e) { disabled("Riwayat pick tidak tersedia. Ban & Pick tetap jalan."); return; }
 
+  var BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  function tgl(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.getDate() + " " + BULAN[d.getMonth()] + " " + d.getFullYear(); }
+  function baseLine(h) {
+    var b = h.baselineInfo(); if (!b) return "";
+    var t = b.updated ? tgl(b.updated) : "";
+    return '<p class="ph-base">Data HoK Camp: ' + b.heroes + " hero, " + b.matches.toLocaleString("id-ID") + " match" + (t ? ", diperbarui " + t : "") + ". Dijumlahkan dengan riwayat pick untuk urutan jarang dipakai.</p>";
+  }
   function renderList(h) {
     var c = h.counts(), keys = Object.keys(c).sort(function (a, b) { return c[b] - c[a] || nm(a).localeCompare(nm(b)); });
     if (!h.enabled()) { box.innerHTML = '<p class="bp-empty">Masuk dulu untuk menyimpan dan melihat riwayat pick.</p>'; return; }
-    if (!keys.length) { box.innerHTML = '<p class="bp-empty">Belum ada riwayat. Pencet kartu rekomendasi pick atau tambah hero ke tim kita.</p>'; return; }
-    box.innerHTML = '<p class="ph-total">Total ' + h.total() + " pick, " + keys.length + " hero</p>" + '<ul class="ph-rows">' + keys.map(function (k) {
+    if (!keys.length) { box.innerHTML = baseLine(h) + '<p class="bp-empty">Belum ada riwayat. Pencet kartu rekomendasi pick atau tambah hero ke tim kita.</p>'; return; }
+    box.innerHTML = baseLine(h) + '<p class="ph-total">Total ' + h.total() + " pick, " + keys.length + " hero</p>" + '<ul class="ph-rows">' + keys.map(function (k) {
       return '<li><span class="ph-name">' + esc(nm(k)) + '</span><span class="ph-n">' + c[k] + 'x</span><button type="button" class="ph-del" data-s="' + esc(k) + '" aria-label="Kurangi satu riwayat ' + esc(nm(k)) + '">&minus;1</button></li>';
     }).join("") + "</ul>";
   }
@@ -123,7 +154,8 @@
     onChange: function (h) { renderList(h); rerender(); },
     onError: function (e) { msg("Gagal menyimpan riwayat: " + ((e && e.message) || e)); },
   });
-  window.getHeroPickCount = function (slug) { return hist.enabled() ? hist.count(slug) : 0; };
+  // Jumlah dipakai = match HoK Camp (data awal) + riwayat pick di situs. Dipakai di kartu ("dipakai Nx") dan tiebreak.
+  window.getHeroPickCount = function (slug) { return hist.enabled() ? hist.used(slug) : 0; };
   window.__pickHistory.instance = hist;
   if (BP.hooks) {
     BP.hooks.onAllyAdd = function (slug, source) { hist.record(slug, source); };

@@ -25,3 +25,35 @@ create policy "pick_history delete own" on public.pick_history
 
 revoke all on public.pick_history from anon;
 grant select, insert, delete on public.pick_history to authenticated;
+
+-- Data awal pemakaian hero per akun dari HoK Camp (Battle Record > Heroes, jumlah match).
+-- Dijumlahkan dengan pick_history untuk tiebreak "jarang dipakai duluan". Isi lewat scripts/import-camp-baseline.mjs.
+create table if not exists public.hero_usage_baseline (
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  hero_slug text not null check (char_length(hero_slug) between 1 and 64),
+  matches integer not null default 0 check (matches >= 0),
+  source text not null default 'hokcamp',
+  updated_at timestamptz not null default now(),
+  primary key (user_id, hero_slug)
+);
+
+alter table public.hero_usage_baseline enable row level security;
+
+drop policy if exists "hero_usage_baseline select own" on public.hero_usage_baseline;
+create policy "hero_usage_baseline select own" on public.hero_usage_baseline
+  for select to authenticated using (user_id = auth.uid());
+
+drop policy if exists "hero_usage_baseline insert own" on public.hero_usage_baseline;
+create policy "hero_usage_baseline insert own" on public.hero_usage_baseline
+  for insert to authenticated with check (user_id = auth.uid());
+
+drop policy if exists "hero_usage_baseline update own" on public.hero_usage_baseline;
+create policy "hero_usage_baseline update own" on public.hero_usage_baseline
+  for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists "hero_usage_baseline delete own" on public.hero_usage_baseline;
+create policy "hero_usage_baseline delete own" on public.hero_usage_baseline
+  for delete to authenticated using (user_id = auth.uid());
+
+revoke all on public.hero_usage_baseline from anon;
+grant select, insert, update, delete on public.hero_usage_baseline to authenticated;

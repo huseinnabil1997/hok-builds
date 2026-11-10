@@ -63,10 +63,16 @@ check("canAdd: tim kita maks 5, ban tanpa batas", [B.canAdd({ ally: [1, 2, 3, 4]
 vm.runInContext(fs.readFileSync("js/pick-history.js", "utf8"), ctx);
 const P = ctx.window.__pickHistory;
 function mockClient(seed, opts = {}) {
-  const db = { rows: seed.slice(), next: 100, deletes: [], inserts: [] };
+  const db = { rows: seed.slice(), next: 100, deletes: [], inserts: [], baseline: opts.baseline };
   let release = null;
   const client = {
-    from() {
+    from(t) {
+      if (t === "hero_usage_baseline") {
+        return { select() { return { range() {
+          if (db.baseline === undefined) return Promise.resolve({ data: null, error: { message: "relation does not exist" } });
+          return Promise.resolve({ data: db.baseline, error: null });
+        } }; } };
+      }
       return {
         select() { return { order() { return { range(a, b) { return Promise.resolve({ data: db.rows.slice(a, b + 1), error: null }); } }; } }; },
         insert(obj) {
@@ -117,5 +123,38 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   const h = P.create(m.client, { onError: () => err++ }); await h.load();
   m.client.from = () => ({ insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: "rls" } }) }) }) });
   check("insert gagal: null, onError, slot dilepas", (await h.record("lam", "manual")) + "|" + err + "|" + h.pending().length, "null|1|0");
+}
+{
+  // Data awal HoK Camp + riwayat pick: dijumlahkan untuk "dipakai Nx" dan tiebreak.
+  const m = mockClient([{ id: 1, hero_slug: "lam" }, { id: 2, hero_slug: "yao" }], {
+    baseline: [{ hero_slug: "lam", matches: 3, updated_at: "2026-11-10T12:00:00Z" }, { hero_slug: "yao", matches: 1, updated_at: "2026-11-09T12:00:00Z" }, { hero_slug: "ma-chao", matches: 0 }],
+  });
+  let berr = 0;
+  const h = P.create(m.client, { onBaselineError: () => berr++ }); await h.load();
+  check("baseline + riwayat: used = match Camp + pick", [h.used("lam"), h.used("yao"), h.used("ma-chao"), h.used("x")].join(), "4,2,0,0");
+  check("baseline tidak mengubah count riwayat", h.count("lam") + "|" + h.total(), "1|2");
+  check("baselineInfo: jumlah hero, match, tanggal terbaru", JSON.stringify(h.baselineInfo()), JSON.stringify({ heroes: 3, matches: 4, updated: "2026-11-10T12:00:00Z" }));
+  await h.record("yao", "manual"); await h.record("yao", "manual"); h.newDraft(); await h.record("yao", "manual");
+  check("record setelah baseline: used naik", h.used("yao"), 4);
+  ctx.window.getHeroPickCount = (s) => h.used(s);
+  const R = () => [{ k: "lam", s: { total: 1 } }, { k: "yao", s: { total: 1 } }, { k: "ma-chao", s: { total: 1 } }, { k: "zilong", s: { total: 2 } }];
+  const RH2 = { lam: { tier: "S" }, yao: { tier: "S" }, "ma-chao": { tier: "D" }, zilong: { tier: "D" } };
+  check("tiebreak: skor dulu, lalu baseline+riwayat paling kecil", B.rank(R(), RH2, "wr", nm).map((r) => r.k).join(","), "zilong,ma-chao,lam,yao");
+  await h.removeOne("yao"); await h.removeOne("yao");
+  check("tiebreak ikut berubah setelah -1", B.rank(R(), RH2, "wr", nm).map((r) => r.k).join(","), "zilong,ma-chao,yao,lam");
+  delete ctx.window.getHeroPickCount;
+  check("onBaselineError tidak terpanggil kalau tabel ada", berr, 0);
+  h.clear();
+  check("logout: baseline kosong", h.used("lam") + "|" + h.baselineInfo(), "0|null");
+}
+{
+  const m = mockClient([{ id: 1, hero_slug: "lam" }]); let berr = 0;
+  const h = P.create(m.client, { onBaselineError: () => berr++ }); await h.load();
+  check("tabel baseline gagal: riwayat tetap jalan", [h.enabled(), h.used("lam"), h.baselineInfo(), berr].join(), "true,1,,1");
+}
+{
+  const m = mockClient([], { baseline: [] });
+  const h = P.create(m.client, {}); await h.load();
+  check("baseline kosong: info null", h.baselineInfo(), null);
 }
 process.exit(fail ? 1 : 0);
