@@ -11,8 +11,8 @@ const CN = JSON.parse(fs.readFileSync("data/banpick.json", "utf8"));
 const CAMP = load("data/hokcamp-combos.js", "HOKCAMP_COMBOS");
 const HS = load("data/hokstats-banpick.js", "HOKSTATS");
 
-// Slug sumber -> slug repo (sama dengan aturan yang sudah dipakai): annette -> anette, zhu-bajie -> ata, shieldun -> dunshan.
-const ALIAS = { annette: "anette", "zhu-bajie": "ata", shieldun: "dunshan" };
+// Slug sumber -> slug repo (sama dengan aturan yang sudah dipakai): annette -> anette, zhu-bajie -> ata, shieldun -> dunshan, flowborn-mage -> flowborn.
+const ALIAS = { annette: "anette", "zhu-bajie": "ata", shieldun: "dunshan", "flowborn-mage": "flowborn" };
 const S = (s) => ALIAS[s] || s;
 
 const heroes = {};

@@ -19,8 +19,7 @@ const ALIAS = { "zhu bajie": "ata", annette: "anette", shieldun: "dunshan", "yin
 const w = {}; new Function("window", fs.readFileSync("data/banpick-merged.js", "utf8"))(w);
 const H = w.BANPICK_DATA.heroes;
 const key = (s) => String(s).toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ").trim();
-// Nama sama di dua slug (mis. Flowborn (Mage): flowborn dari CN/Camp dan flowborn-mage dari hokstats):
-// pakai slug yang punya halaman build, lalu yang punya lebih banyak sumber.
+// Nama sama di dua slug: pakai slug yang punya halaman build, lalu yang punya lebih banyak sumber.
 const byName = {};
 for (const [slug, h] of Object.entries(H)) {
   const k = key(h.name), cur = byName[k];
