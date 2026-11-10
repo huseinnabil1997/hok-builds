@@ -96,17 +96,21 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
 {
   const m = mockClient([{ id: 1, hero_slug: "ma-chao" }, { id: 2, hero_slug: "ma-chao" }, { id: 3, hero_slug: "yao" }]);
   const h = P.create(m.client, {});
-  check("sebelum load: record diabaikan (belum login)", await h.record("yao", "manual"), null);
+  check("sebelum load: record diabaikan (belum login)", await h.record("yao", "rekomendasi"), null);
   await h.load();
   check("load: hitungan per slug", JSON.stringify(h.counts()), JSON.stringify({ "ma-chao": 2, yao: 1 }));
+  check("record manual tidak tercatat", await h.record("yao", "manual"), null);
+  check("record tanpa source tidak tercatat", await h.record("yao"), null);
+  check("record manual tidak menambah insert", m.db.inserts.length, 0);
   const id = await h.record("lam", "rekomendasi");
   check("record: insert dengan source rekomendasi", m.db.inserts.map((x) => x.hero_slug + ":" + x.source).join(), "lam:rekomendasi");
   check("record: count naik", h.count("lam") + "/" + h.total(), "1/4");
-  check("record: slug yang sama di draft yang sama tidak dobel", await h.record("lam", "manual"), null);
+  check("record: slug yang sama di draft yang sama tidak dobel", await h.record("lam", "rekomendasi"), null);
   await h.undo("lam");
   check("undo: baris yang baru dibuat dihapus", m.db.deletes.join() + "|" + h.count("lam"), id + "|0");
   check("undo tanpa slot: tidak menghapus apa-apa", await h.undo("ma-chao"), false);
-  await h.record("ma-chao", "manual"); h.newDraft(); await h.undo("ma-chao");
+  check("undo hero yang ditambah manual: tidak menghapus apa-apa", await h.undo("yao"), false);
+  await h.record("ma-chao", "rekomendasi"); h.newDraft(); await h.undo("ma-chao");
   check("reset draft: riwayat tetap, undo tidak menghapus", h.count("ma-chao"), 3);
   await h.removeOne("ma-chao");
   check("removeOne (-1): hapus satu baris terbaru", h.count("ma-chao") + "|" + m.db.deletes.length, "2|2");
@@ -124,7 +128,7 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   const m = mockClient([]); let err = 0;
   const h = P.create(m.client, { onError: () => err++ }); await h.load();
   m.client.from = () => ({ insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: "rls" } }) }) }) });
-  check("insert gagal: null, onError, slot dilepas", (await h.record("lam", "manual")) + "|" + err + "|" + h.pending().length, "null|1|0");
+  check("insert gagal: null, onError, slot dilepas", (await h.record("lam", "rekomendasi")) + "|" + err + "|" + h.pending().length, "null|1|0");
 }
 {
   // Data awal HoK Camp + riwayat pick: dijumlahkan untuk "dipakai Nx" dan tiebreak.
@@ -136,7 +140,7 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   check("baseline + riwayat: used = match Camp + pick", [h.used("lam"), h.used("yao"), h.used("ma-chao"), h.used("x")].join(), "4,2,0,0");
   check("baseline tidak mengubah count riwayat", h.count("lam") + "|" + h.total(), "1|2");
   check("baselineInfo: jumlah hero, match, tanggal terbaru", JSON.stringify(h.baselineInfo()), JSON.stringify({ heroes: 3, matches: 4, updated: "2026-11-10T12:00:00Z" }));
-  await h.record("yao", "manual"); await h.record("yao", "manual"); h.newDraft(); await h.record("yao", "manual");
+  await h.record("yao", "rekomendasi"); await h.record("yao", "rekomendasi"); h.newDraft(); await h.record("yao", "rekomendasi");
   check("record setelah baseline: used naik", h.used("yao"), 4);
   ctx.window.getHeroPickCount = (s) => h.used(s);
   const R = () => [{ k: "lam", s: { total: 1 } }, { k: "yao", s: { total: 1 } }, { k: "ma-chao", s: { total: 1 } }, { k: "zilong", s: { total: 2 } }];

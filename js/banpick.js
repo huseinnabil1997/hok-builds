@@ -60,7 +60,8 @@
   // Batas isi daftar: tim kita dan musuh masing-masing 5 hero (5v5); ban tidak dibatasi.
   var MAX = { ally: 5, enemy: 5 };
   function canAdd(state, key) { return !MAX[key] || state[key].length < MAX[key]; }
-  // hooks diisi js/pick-history.js: onAllyAdd(slug, source), onAllyRemove(slug), onReset().
+  // hooks diisi js/pick-history.js: onAllyAdd(slug, 'rekomendasi') hanya dari pencet kartu,
+  // onAllyRemove(slug), onReset(). Tambah lewat ketikan tidak memanggil onAllyAdd.
   var hooks = {};
   if (typeof window !== "undefined") window.__banpick = { counterHit: counterHit, partnerHit: partnerHit, triosOf: triosOf, pickScore: pickScore, banScore: banScore, rank: rank, tierRank: tierRank, getPickCount: getPickCount, canAdd: canAdd, MAX: MAX, hooks: hooks };
 
@@ -143,7 +144,7 @@
     for (var k in state) if (state[k].indexOf(slug) >= 0) { setMsg(nm(slug) + " sudah ada di daftar " + LABEL[k] + "."); return false; }
     if (!canAdd(state, key)) { setMsg("Daftar " + LABEL[key] + " sudah penuh (" + MAX[key] + " hero)."); return false; }
     state[key].push(slug); setMsg(""); renderChips(key);
-    if (key === "ally" && hooks.onAllyAdd) hooks.onAllyAdd(slug, source || "manual");
+    if (key === "ally" && source === "rekomendasi" && hooks.onAllyAdd) hooks.onAllyAdd(slug, "rekomendasi");
     render(); return true;
   }
   function remove(key, slug) {

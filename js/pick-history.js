@@ -2,7 +2,8 @@
   "use strict";
 
   // Riwayat pick (Supabase, tabel pick_history). Bagian murni (create) bisa dites tanpa DOM / jaringan.
-  // Satu baris = satu kali hero dipakai di tim kita. Sumber: 'rekomendasi' (pencet kartu) atau 'manual' (ketik).
+  // Satu baris = satu kali hero dipakai di tim kita. Sumber: 'rekomendasi' (pencet kartu rekomendasi pick).
+  // Tambah lewat ketikan tidak tercatat. Nilai source 'manual' tetap diizinkan skema DB, tapi tidak ditulis dari situs.
   // Undo: kalau hero dilepas lagi dari tim kita di draft yang sama, baris yang baru dibuat ikut dihapus.
   // Data awal HoK Camp (tabel hero_usage_baseline: jumlah match per hero) ikut dimuat dan dijumlahkan di used().
   // Kalau tabel itu gagal dimuat, riwayat pick tetap jalan tanpa data awal.
@@ -66,11 +67,12 @@
       });
     }
 
-    // Hero masuk tim kita. Satu slot per hero per draft.
+    // Hero masuk tim kita lewat pencet kartu rekomendasi pick. Satu slot per hero per draft.
+    // source harus 'rekomendasi'; selain itu (termasuk tambah lewat ketikan) tidak ditulis.
     function record(slug, source) {
-      if (!enabled || draft[slug]) return Promise.resolve(null);
+      if (!enabled || draft[slug] || source !== "rekomendasi") return Promise.resolve(null);
       var slot = { cancelled: false };
-      slot.p = client.from(table).insert({ hero_slug: slug, source: source === "rekomendasi" ? "rekomendasi" : "manual" }).select("id,hero_slug,source,created_at").single()
+      slot.p = client.from(table).insert({ hero_slug: slug, source: "rekomendasi" }).select("id,hero_slug,source,created_at").single()
         .then(function (res) {
           if (res.error) throw res.error;
           var row = res.data;
@@ -144,7 +146,7 @@
   function renderList(h) {
     var c = h.counts(), keys = Object.keys(c).sort(function (a, b) { return c[b] - c[a] || nm(a).localeCompare(nm(b)); });
     if (!h.enabled()) { box.innerHTML = '<p class="bp-empty">Masuk dulu untuk menyimpan dan melihat riwayat pick.</p>'; return; }
-    if (!keys.length) { box.innerHTML = baseLine(h) + '<p class="bp-empty">Belum ada riwayat. Pencet kartu rekomendasi pick atau tambah hero ke tim kita.</p>'; return; }
+    if (!keys.length) { box.innerHTML = baseLine(h) + '<p class="bp-empty">Belum ada riwayat. Pencet kartu rekomendasi pick untuk mencatat.</p>'; return; }
     box.innerHTML = baseLine(h) + '<p class="ph-total">Total ' + h.total() + " pick, " + keys.length + " hero</p>" + '<ul class="ph-rows">' + keys.map(function (k) {
       return '<li><span class="ph-name">' + esc(nm(k)) + '</span><span class="ph-n">' + c[k] + 'x</span><button type="button" class="ph-del" data-s="' + esc(k) + '" aria-label="Kurangi satu riwayat ' + esc(nm(k)) + '">&minus;1</button></li>';
     }).join("") + "</ul>";
