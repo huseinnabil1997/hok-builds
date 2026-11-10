@@ -57,7 +57,12 @@
         (H[b.k][key] || 0) - (H[a.k][key] || 0) || nm(a.k).localeCompare(nm(b.k));
     });
   }
-  if (typeof window !== "undefined") window.__banpick = { counterHit: counterHit, partnerHit: partnerHit, triosOf: triosOf, pickScore: pickScore, banScore: banScore, rank: rank, tierRank: tierRank, getPickCount: getPickCount };
+  // Batas isi daftar: tim kita dan musuh masing-masing 5 hero (5v5); ban tidak dibatasi.
+  var MAX = { ally: 5, enemy: 5 };
+  function canAdd(state, key) { return !MAX[key] || state[key].length < MAX[key]; }
+  // hooks diisi js/pick-history.js: onAllyAdd(slug, source), onAllyRemove(slug), onReset().
+  var hooks = {};
+  if (typeof window !== "undefined") window.__banpick = { counterHit: counterHit, partnerHit: partnerHit, triosOf: triosOf, pickScore: pickScore, banScore: banScore, rank: rank, tierRank: tierRank, getPickCount: getPickCount, canAdd: canAdd, MAX: MAX, hooks: hooks };
 
   var D = typeof window !== "undefined" && window.BANPICK_DATA;
   if (!D || typeof document === "undefined") return;
@@ -86,13 +91,14 @@
 
   function taken() { return state.ban.concat(state.ally, state.enemy); }
 
-  function card(k, sc, rk) {
-    var h = H[k];
+  function card(k, sc, rk, pickable) {
+    var h = H[k], used = getPickCount(k);
     var parts = sc.parts.map(function (p) { return '<li class="' + p.cls + '"><span>' + esc(p.t) + "</span></li>"; }).join("");
     var foot = h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>'
       : (h.nobuild === "clash" ? '<div class="bp-clash">Lane utama Clash, build lengkap tidak dibuat</div>' : '<div class="bp-pending">Build belum tersedia</div>');
     var title = h.page ? '<a href="heroes/' + k + '.html">' + esc(h.name) + "</a>" : esc(h.name);
-    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rk + '</span><div class="bp-title"><h3>' + icon(k) + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (isClashOnly(h) ? '<span class="badge clash">Clash</span>' : "") + '</div></div><ul class="bp-why">' + parts + "</ul>" + foot + "</article>";
+    var attrs = pickable ? ' bp-card-pick" data-pick="' + esc(k) + '" tabindex="0" role="button" aria-label="Pakai ' + esc(h.name) + ' di tim kita' : "";
+    return '<article class="bp-card' + attrs + '"><div class="bp-head"><span class="bp-rank">' + rk + '</span><div class="bp-title"><h3>' + icon(k) + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (isClashOnly(h) ? '<span class="badge clash">Clash</span>' : "") + (used ? '<span class="bp-used">dipakai ' + used + "x</span>" : "") + '</div></div><ul class="bp-why">' + parts + "</ul>" + foot + "</article>";
   }
 
   function render() {
@@ -112,17 +118,17 @@
       if (!String(H[k].lane || "").trim()) return true;
       return String(H[k].lane).split("/").some(function (p) { return laneOn[p.trim()]; });
     }
-    function list(fn, el, emptyMsg, key, filter) {
+    function list(fn, el, emptyMsg, key, filter, pickable) {
       var rows = cands.map(function (k) { return { k: k, s: fn(k) }; }).filter(function (r) { return r.s.total > 0; });
       if (filter) rows = rows.filter(function (r) { return roleOk(r.k) && laneOk(r.k); });
       rank(rows, H, key, nm);
-      el.innerHTML = rows.length ? rows.slice(0, TOP).map(function (r, i) { return card(r.k, r.s, i + 1); }).join("") : '<p class="bp-empty">' + emptyMsg + "</p>";
+      el.innerHTML = rows.length ? rows.slice(0, TOP).map(function (r, i) { return card(r.k, r.s, i + 1, pickable); }).join("") : '<p class="bp-empty">' + emptyMsg + "</p>";
     }
     var anyRole = ROLES.some(function (r) { return roleOn[r]; });
     var anyLane = LANES.some(function (l) { return laneOn[l]; });
     if (!anyRole) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu role.</p>';
     else if (!anyLane) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu lane.</p>';
-    else list(function (k) { return pickScore(D, k, state.ally, state.enemy, nm); }, pickEl, "Belum ada hero role dan lane ini yang cocok untuk pilihan ini.", "wr", true);
+    else list(function (k) { return pickScore(D, k, state.ally, state.enemy, nm); }, pickEl, "Belum ada hero role dan lane ini yang cocok untuk pilihan ini.", "wr", true, true);
     list(function (k) { return banScore(D, k, state.ally, state.enemy, nm); }, banEl, "Belum ada data counter / partner yang cocok untuk pilihan ini.", "br", false);
   }
   // Untuk riwayat pick nanti: panggil setelah window.getHeroPickCount siap.
@@ -133,11 +139,31 @@
     var box = document.getElementById("chips-" + key);
     box.innerHTML = state[key].map(function (s) { return '<span class="chip chip-' + key + '">' + (key === "ban" ? icon(s) : "") + esc(nm(s)) + '<button type="button" data-k="' + key + '" data-s="' + s + '" aria-label="Hapus ' + esc(nm(s)) + '">&times;</button></span>'; }).join("");
   }
-  function add(key, slug) {
+  function add(key, slug, source) {
     for (var k in state) if (state[k].indexOf(slug) >= 0) { setMsg(nm(slug) + " sudah ada di daftar " + LABEL[k] + "."); return false; }
-    state[key].push(slug); setMsg(""); renderChips(key); render(); return true;
+    if (!canAdd(state, key)) { setMsg("Daftar " + LABEL[key] + " sudah penuh (" + MAX[key] + " hero)."); return false; }
+    state[key].push(slug); setMsg(""); renderChips(key);
+    if (key === "ally" && hooks.onAllyAdd) hooks.onAllyAdd(slug, source || "manual");
+    render(); return true;
   }
-  function remove(key, slug) { state[key] = state[key].filter(function (s) { return s !== slug; }); renderChips(key); render(); }
+  function remove(key, slug) {
+    var had = state[key].indexOf(slug) >= 0;
+    state[key] = state[key].filter(function (s) { return s !== slug; }); renderChips(key);
+    if (had && key === "ally" && hooks.onAllyRemove) hooks.onAllyRemove(slug);
+    render();
+  }
+  // Pencet kartu rekomendasi pick -> hero masuk tim kita (riwayat: 'rekomendasi'). Link di kartu tetap jalan biasa.
+  (function () {
+    var out = document.getElementById("out-pick");
+    function pick(ev) {
+      if (ev.target.closest("a")) return;
+      var c = ev.target.closest(".bp-card-pick"); if (!c) return;
+      if (ev.type === "keydown") { if (ev.key !== "Enter" && ev.key !== " ") return; ev.preventDefault(); }
+      add("ally", c.getAttribute("data-pick"), "rekomendasi");
+    }
+    out.addEventListener("click", pick);
+    out.addEventListener("keydown", pick);
+  })();
 
   ["ban", "ally", "enemy"].forEach(function (key) {
     var input = document.getElementById("in-" + key), ac = document.getElementById("ac-" + key), active = -1, opts = [], skipFocus = false;
@@ -163,7 +189,7 @@
     ac.addEventListener("mousedown", function (ev) { var li = ev.target.closest("li[data-i]"); if (li) { ev.preventDefault(); choose(+li.dataset.i); } });
   });
   document.addEventListener("click", function (ev) { var b = ev.target.closest(".chip button"); if (b) remove(b.dataset.k, b.dataset.s); });
-  document.getElementById("bp-reset").addEventListener("click", function () { state = { ban: [], ally: [], enemy: [] }; ["ban", "ally", "enemy"].forEach(renderChips); setMsg(""); render(); });
+  document.getElementById("bp-reset").addEventListener("click", function () { state = { ban: [], ally: [], enemy: [] }; if (hooks.onReset) hooks.onReset(); ["ban", "ally", "enemy"].forEach(renderChips); setMsg(""); render(); });
   function bindChips(boxId, attr, stateMap) {
     var box = document.getElementById(boxId);
     if (!box) return;

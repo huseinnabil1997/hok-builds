@@ -53,4 +53,69 @@ check("hero cuma hokstats tetap ada (lorion)", !!MH.lorion, true);
 check("hero cuma CN tetap ada (ma-chao)", !!MH["ma-chao"], true);
 const pc = slugs.reduce((n, k) => n + Object.keys(MH[k].counters).length, 0);
 check("jumlah counter = meta", pc, M.meta.counter.total);
+// Tiebreak dari riwayat pick nyata (window.getHeroPickCount): skor sama -> paling jarang di-pick duluan.
+ctx.window.getHeroPickCount = (s) => ({ y: 2, x: 2, w: 1 })[s] || 0;
+check("getHeroPickCount dipakai default rank", B.rank(rows(), RH, "wr", nm).map((r) => r.k).join(","), "z,w,y,x");
+delete ctx.window.getHeroPickCount;
+check("canAdd: tim kita maks 5, ban tanpa batas", [B.canAdd({ ally: [1, 2, 3, 4] }, "ally"), B.canAdd({ ally: [1, 2, 3, 4, 5] }, "ally"), B.canAdd({ ban: [1, 2, 3, 4, 5, 6] }, "ban")].join(","), "true,false,true");
+
+// Riwayat pick (js/pick-history.js) dengan client Supabase tiruan.
+vm.runInContext(fs.readFileSync("js/pick-history.js", "utf8"), ctx);
+const P = ctx.window.__pickHistory;
+function mockClient(seed, opts = {}) {
+  const db = { rows: seed.slice(), next: 100, deletes: [], inserts: [] };
+  let release = null;
+  const client = {
+    from() {
+      return {
+        select() { return { order() { return { range(a, b) { return Promise.resolve({ data: db.rows.slice(a, b + 1), error: null }); } }; } }; },
+        insert(obj) {
+          db.inserts.push(obj);
+          return { select() { return { single() {
+            const row = { id: db.next++, hero_slug: obj.hero_slug, source: obj.source, created_at: "t" };
+            const done = () => { if (opts.failInsert) return { data: null, error: { message: "x" } }; db.rows.unshift(row); return { data: row, error: null }; };
+            if (opts.slowInsert) return new Promise((r) => { release = () => r(done()); });
+            return Promise.resolve(done());
+          } }; } };
+        },
+        delete() { return { eq(_c, id) { db.deletes.push(id); db.rows = db.rows.filter((r) => r.id !== id); return Promise.resolve({ error: null }); } }; },
+      };
+    },
+  };
+  return { client, db, release: () => release && release() };
+}
+const tick = () => new Promise((r) => setTimeout(r, 0));
+{
+  const m = mockClient([{ id: 1, hero_slug: "ma-chao" }, { id: 2, hero_slug: "ma-chao" }, { id: 3, hero_slug: "yao" }]);
+  const h = P.create(m.client, {});
+  check("sebelum load: record diabaikan (belum login)", await h.record("yao", "manual"), null);
+  await h.load();
+  check("load: hitungan per slug", JSON.stringify(h.counts()), JSON.stringify({ "ma-chao": 2, yao: 1 }));
+  const id = await h.record("lam", "rekomendasi");
+  check("record: insert dengan source rekomendasi", m.db.inserts.map((x) => x.hero_slug + ":" + x.source).join(), "lam:rekomendasi");
+  check("record: count naik", h.count("lam") + "/" + h.total(), "1/4");
+  check("record: slug yang sama di draft yang sama tidak dobel", await h.record("lam", "manual"), null);
+  await h.undo("lam");
+  check("undo: baris yang baru dibuat dihapus", m.db.deletes.join() + "|" + h.count("lam"), id + "|0");
+  check("undo tanpa slot: tidak menghapus apa-apa", await h.undo("ma-chao"), false);
+  await h.record("ma-chao", "manual"); h.newDraft(); await h.undo("ma-chao");
+  check("reset draft: riwayat tetap, undo tidak menghapus", h.count("ma-chao"), 3);
+  await h.removeOne("ma-chao");
+  check("removeOne (-1): hapus satu baris terbaru", h.count("ma-chao") + "|" + m.db.deletes.length, "2|2");
+  h.clear();
+  check("logout: hitungan kosong", h.total() + "|" + h.enabled(), "0|false");
+}
+{
+  const m = mockClient([], { slowInsert: true });
+  const h = P.create(m.client, {}); await h.load();
+  const p = h.record("lam", "rekomendasi"); const u = h.undo("lam");
+  m.release(); await p; await u; await tick();
+  check("undo sebelum insert selesai: baris tetap dihapus", m.db.rows.length + "|" + h.count("lam") + "|" + m.db.deletes.length, "0|0|1");
+}
+{
+  const m = mockClient([]); let err = 0;
+  const h = P.create(m.client, { onError: () => err++ }); await h.load();
+  m.client.from = () => ({ insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: "rls" } }) }) }) });
+  check("insert gagal: null, onError, slot dilepas", (await h.record("lam", "manual")) + "|" + err + "|" + h.pending().length, "null|1|0");
+}
 process.exit(fail ? 1 : 0);

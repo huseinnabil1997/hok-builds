@@ -1080,3 +1080,24 @@ body.hero-bg::before { content: ""; position: fixed; inset: 0; z-index: -2; poin
 .pro-logo-sm { width: 1rem; height: 1rem; object-fit: contain; vertical-align: -3px; margin-right: .2rem; }
 .pro-item.predicted img { border-style: dashed; opacity: .82; }
 .pro-note { margin-top: .5rem; }
+
+/* Riwayat pick (js/pick-history.js): panel akun kecil, daftar riwayat, kartu pick bisa dipencet. */
+.ph-auth { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; padding: 0.55rem 0.75rem; background: rgba(255,255,255,0.84); border: 1px solid var(--border); border-radius: var(--radius); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.ph-auth [hidden], .ph-form[hidden] { display: none !important; }
+.ph-form { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.ph-form input { flex: 1 1 9rem; min-width: 0; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; background: #fff; }
+.ph-auth button { padding: 0.4rem 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); cursor: pointer; font-size: 0.85rem; }
+.ph-auth button:hover { border-color: var(--accent); }
+.ph-auth button[disabled] { opacity: 0.6; cursor: default; }
+.ph-who { font-size: 0.85rem; color: var(--text-strong); font-weight: 600; }
+.ph-history { margin-top: 1.25rem; }
+.ph-total { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--muted); }
+.ph-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.4rem; }
+.ph-rows li { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.6rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; }
+.ph-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ph-n { color: var(--muted); }
+.ph-del { padding: 0.1rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); cursor: pointer; font-size: 0.78rem; }
+.bp-hint { margin: 0 0 0.4rem; font-size: 0.8rem; color: var(--muted); }
+.bp-card-pick { cursor: pointer; }
+.bp-card-pick:hover, .bp-card-pick:focus-visible { border-color: var(--accent); outline: none; }
+.bp-used { display: inline-block; margin-left: 0.4rem; font-size: 0.72rem; color: var(--muted); }

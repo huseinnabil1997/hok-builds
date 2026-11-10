@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Ban &amp; Pick - HoK S16</title>
-<link rel="stylesheet" href="css/style.css?v=20261110a"/>
+<link rel="stylesheet" href="css/style.css?v=20261110b"/>
 </head>
 <body>
 <header class="app-header">
@@ -13,6 +13,17 @@
   <nav class="top-nav"><a href="index.html">Daftar hero</a><a href="banpick.html" class="active">Ban &amp; Pick</a></nav>
 </header>
 <main class="wrap bp-wrap">
+  <section class="ph-auth" id="ph-auth" aria-label="Akun riwayat pick">
+    <form id="ph-form" class="ph-form" hidden>
+      <input id="ph-email" type="email" placeholder="Email" autocomplete="username" required/>
+      <input id="ph-pass" type="password" placeholder="Password" autocomplete="current-password" minlength="6" required/>
+      <button type="submit" id="ph-in">Masuk</button>
+      <button type="button" id="ph-signup">Daftar</button>
+    </form>
+    <span class="ph-who" id="ph-who"></span>
+    <button type="button" id="ph-out" hidden>Keluar</button>
+    <span class="bp-msg" id="ph-msg">Memuat akun...</span>
+  </section>
   <section class="bp-inputs">
     <div class="bp-field" data-list="ban">
       <label for="in-ban">Hero di-ban</label>
@@ -50,6 +61,7 @@
         <button type="button" class="role-chip on" data-lane="Roam" aria-pressed="true">Roam</button>
         <button type="button" class="role-chip on" data-lane="Clash Lane" aria-pressed="true">Clash Lane</button>
       </div>
+      <p class="bp-hint">Pencet kartu untuk langsung pakai hero itu di tim kita.</p>
       <div id="out-pick" class="bp-list"></div>
     </div>
     <div class="bp-col">
@@ -58,24 +70,33 @@
     </div>
   </section>
 
+  <section class="ph-history">
+    <h2 class="section-title">Riwayat pick</h2>
+    <div id="ph-list"><p class="bp-empty">Memuat riwayat...</p></div>
+  </section>
+
   <section class="bp-formula">
     <h2 class="section-title">Cara urut</h2>
     <ul class="formula-notes">
       <li><strong>Pick:</strong> hero naik kalau meng-counter musuh atau jadi partner (duo / trio lengkap) hero tim kita, dan turun kalau di-counter musuh.</li>
       <li><strong>Ban:</strong> hero naik kalau meng-counter hero tim kita atau jadi partner (duo / trio lengkap) hero musuh.</li>
       <li>Yang dihitung cuma ada atau tidaknya hubungan. Satu hubungan dihitung sekali walaupun dicatat lebih dari satu sumber. Angka index / compatibility sumber tidak dipakai.</li>
-      <li>Kalau seri: hero yang lebih jarang kamu pick duluan (riwayat pick menyusul), lalu tier hokstats (S+ &gt; S &gt; A &gt; B &gt; C &gt; D, tanpa tier paling belakang), lalu win rate (pick) / ban rate (ban), lalu nama.</li>
+      <li>Kalau seri: hero yang lebih jarang kamu pick duluan (dari Riwayat pick; perlu masuk), lalu tier hokstats (S+ &gt; S &gt; A &gt; B &gt; C &gt; D, tanpa tier paling belakang), lalu win rate (pick) / ban rate (ban), lalu nama.</li>
+      <li><strong>Riwayat pick:</strong> tercatat saat kamu pencet kartu rekomendasi pick atau menambah hero ke tim kita secara manual. Kalau hero itu dilepas lagi dari tim kita di draft yang sama, catatannya ikut dihapus. Reset semua tidak menghapus riwayat.</li>
       <li>Hero yang sudah di-ban atau di-pick tidak direkomendasikan. Filter role dan lane hanya untuk rekomendasi pick; hero dengan lebih dari satu lane tetap muncul selama salah satu lane-nya nyala.</li>
     </ul>
     <div class="note bp-cn-note"><strong>Sumber data:</strong> HoK CN (王者营地: counter, di-counter, duo, trio), HoK Camp global (Pairings: duo, trio), dan <a href="https://hokstats.gg/" rel="noopener">hokstats.gg</a> (Strong against / Countered by, Partners, tier, WR/BR). Digabung oleh <code>scripts/build-banpick-merged.mjs</code>.</div>
   </section>
 </main>
 <footer class="app-footer">Sumber: HoK CN (王者营地), HoK Camp, <a href="https://hokstats.gg/" rel="noopener">hokstats.gg</a> | build dari sheet situs</footer>
-<script src="data/banpick-merged.js?v=20261110a"></script>
+<script src="data/banpick-merged.js?v=20261110b"></script>
 <script src="data/hero-icons.js?v=20261019b"></script>
-<script src="js/banpick.js?v=20261110a"></script>
+<script src="js/banpick.js?v=20261110b"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
 <script src="js/speech.js?v=20261014a"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js" integrity="sha384-gnyZit14c5lnGcarmA166QQjjJXpucw25ogZXuwH3HxxY904zHkBqmxVpelsPorb" crossorigin="anonymous"></script>
+<script src="js/supabase-config.js?v=20261110b"></script>
+<script src="js/pick-history.js?v=20261110b"></script>
 </body>
 </html>
