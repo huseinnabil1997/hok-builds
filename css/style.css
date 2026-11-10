@@ -1098,6 +1098,10 @@ body.hero-bg::before { content: ""; position: fixed; inset: 0; z-index: -2; poin
 .ph-rows .hero-ico { width: 1.5rem; height: 1.5rem; font-size: 0.55rem; margin-right: 0; }
 .ph-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ph-n { color: var(--muted); flex: none; }
+.ph-src { font-size: 0.72rem; }
+.ph-main .ph-rows li { padding: 0.45rem 0.6rem; }
+.ph-main .ph-btn { padding: 0.3rem 0.65rem; font-size: 0.85rem; min-width: 2.4rem; }
+@media (max-width: 480px) { .ph-rows { grid-template-columns: 1fr; } .ph-main .ph-n { font-size: 0.8rem; } }
 .ph-btn, .ph-del { padding: 0.1rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); cursor: pointer; font-size: 0.78rem; flex: none; }
 .ph-btn:hover, .ph-del:hover { border-color: var(--accent); }
 .ph-btn[disabled], .ph-del[disabled] { opacity: 0.45; cursor: default; }

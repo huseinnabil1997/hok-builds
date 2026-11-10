@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Ban &amp; Pick - HoK S16</title>
-<link rel="stylesheet" href="css/style.css?v=20261110f"/>
+<link rel="stylesheet" href="css/style.css?v=20261110g"/>
 </head>
 <body>
 <header class="app-header">
@@ -70,21 +70,6 @@
     </div>
   </section>
 
-  <section class="ph-history">
-    <h2 class="section-title">Hero yang sudah dipakai</h2>
-    <div id="ph-list"><p class="bp-empty">Memuat daftar...</p></div>
-    <div id="ph-add" class="ph-add" hidden>
-      <div class="bp-field ph-add-field">
-        <label for="in-ph-add">Tambah hero</label>
-        <div class="ph-add-row">
-          <div class="chip-box"><input id="in-ph-add" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
-          <button type="button" id="ph-add-btn">Tambah</button>
-        </div>
-        <ul class="ac-list hidden" id="ac-ph-add"></ul>
-      </div>
-    </div>
-  </section>
-
   <section class="bp-formula">
     <h2 class="section-title">Cara urut</h2>
     <ul class="formula-notes">
@@ -92,8 +77,7 @@
       <li><strong>Ban:</strong> hero naik kalau meng-counter hero tim kita atau jadi partner (duo / trio lengkap) hero musuh.</li>
       <li>Yang dihitung cuma ada atau tidaknya hubungan. Satu hubungan dihitung sekali walaupun dicatat lebih dari satu sumber. Angka index / compatibility sumber tidak dipakai.</li>
       <li>Kalau seri: hero yang lebih jarang kamu pakai duluan (jumlah match HoK Camp ditambah catatan di situs; perlu masuk), lalu tier hokstats (S+ &gt; S &gt; A &gt; B &gt; C &gt; D, tanpa tier paling belakang), lalu win rate (pick) / ban rate (ban), lalu nama.</li>
-      <li><strong>Hero yang sudah dipakai:</strong> daftar hero dengan jumlah match (data HoK Camp ditambah catatan di situs), diurutkan dari yang paling sering. Pencet +1 di baris hero, atau cari hero lalu pencet Tambah, untuk menambah satu match secara manual. Pencet kartu rekomendasi pick juga menambah satu catatan. Menambah hero ke tim kita lewat ketikan tidak tercatat. Tombol &minus;1 hanya mengurangi catatan di situs, bukan data HoK Camp. Kalau hero dari rekomendasi pick dilepas lagi dari tim kita di draft yang sama, catatannya ikut dihapus. Reset semua tidak menghapus daftar.</li>
-      <li><strong>Data HoK Camp:</strong> jumlah match per hero dari Battle Record HoK Camp, disimpan per akun sebagai angka awal. Angka "dipakai Nx" di kartu dan di daftar = match HoK Camp + catatan di situs.</li>
+      <li><strong>Data HoK Camp:</strong> jumlah match per hero dari Battle Record HoK Camp, disimpan per akun sebagai angka awal. Angka "dipakai Nx" di kartu = match HoK Camp + catatan di situs. Pencet kartu rekomendasi pick menambah satu catatan (perlu masuk); hero yang diketik ke tim kita tidak tercatat, dan kalau hero dari rekomendasi dilepas lagi di draft yang sama, catatannya ikut dihapus.</li>
       <li>Hero yang sudah di-ban atau di-pick tidak direkomendasikan. Filter role dan lane hanya untuk rekomendasi pick; hero dengan lebih dari satu lane tetap muncul selama salah satu lane-nya nyala.</li>
     </ul>
     <div class="note bp-cn-note"><strong>Sumber data:</strong> HoK CN (王者营地: counter, di-counter, duo, trio), HoK Camp global (Pairings: duo, trio), dan <a href="https://hokstats.gg/" rel="noopener">hokstats.gg</a> (Strong against / Countered by, Partners, tier, WR/BR). Digabung oleh <code>scripts/build-banpick-merged.mjs</code>.</div>
@@ -108,6 +92,6 @@
 <script src="js/speech.js?v=20261014a"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js" integrity="sha384-gnyZit14c5lnGcarmA166QQjjJXpucw25ogZXuwH3HxxY904zHkBqmxVpelsPorb" crossorigin="anonymous"></script>
 <script src="js/supabase-config.js?v=20261110f"></script>
-<script src="js/pick-history.js?v=20261110f"></script>
+<script src="js/pick-history.js?v=20261110g"></script>
 </body>
 </html>

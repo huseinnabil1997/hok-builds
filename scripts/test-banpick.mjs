@@ -195,4 +195,19 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   check("undo rekomendasi tidak menghapus addOne manual", h.count("yao") + "|" + h.used("yao"), "1|2");
   check("record manual tetap tidak lewat record()", (await h.record("lam", "manual")) + "|" + m.db.inserts.filter((x) => x.hero_slug === "lam" && x.source === "manual").length, "null|2");
 }
+// Halaman: Daftar hero (index.html) = satu-satunya daftar hero yang sudah dipakai; banpick.html tanpa daftar.
+{
+  const idx = fs.readFileSync("index.html", "utf8"), bp = fs.readFileSync("banpick.html", "utf8");
+  const has = (html, id) => new RegExp('id="' + id + '"').test(html);
+  check("index: panel akun, daftar, cari + Tambah", ["ph-auth", "ph-form", "ph-list", "ph-add", "in-ph-add", "ph-add-btn", "ac-ph-add"].every((id) => has(idx, id)), true);
+  check("index: grid build hero lama sudah tidak ada", /hero-card|hero-grid|js\/app\.js/.test(idx), false);
+  check("index: nav Daftar hero aktif", /<a href="index.html" class="active">Daftar hero<\/a>/.test(idx), true);
+  check("banpick: tidak ada daftar hero yang sudah dipakai", ["ph-list", "ph-add", "in-ph-add", "ph-add-btn", "ph-summary"].some((id) => has(bp, id)) || /Hero yang sudah dipakai/.test(bp), false);
+  check("banpick: panel akun tetap ada", has(bp, "ph-auth") && has(bp, "ph-form"), true);
+  const srcs = (html) => [...html.matchAll(/(?:src|href)="([^"#?:]+\.(?:js|css))(?:\?[^"]*)?"/g)].map((m) => m[1]);
+  check("index + banpick: semua aset lokal ada", srcs(idx).concat(srcs(bp)).every((f) => fs.existsSync(f)), true);
+  const ver = (html, f) => (html.match(new RegExp(f.replace(/[.\/]/g, "\\$&") + "\\?v=(\\w+)")) || [])[1];
+  check("versi pick-history.js + style.css sama di dua halaman (20261110g)", [ver(idx, "js/pick-history.js"), ver(bp, "js/pick-history.js"), ver(idx, "css/style.css"), ver(bp, "css/style.css")].join(), "20261110g,20261110g,20261110g,20261110g");
+  check("teks halaman tanpa em dash", /\u2014|&mdash;/.test(idx + bp + fs.readFileSync("js/pick-history.js", "utf8")), false);
+}
 process.exit(fail ? 1 : 0);

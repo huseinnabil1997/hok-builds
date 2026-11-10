@@ -139,10 +139,12 @@
   }
   if (typeof window !== "undefined") window.__pickHistory = { create: create };
 
-  // --- UI (banpick.html). Tanpa login / CDN gagal / Supabase gagal -> riwayat nonaktif, hitungan 0.
+  // --- UI. Tanpa login / CDN gagal / Supabase gagal -> riwayat nonaktif, hitungan 0.
+  // index.html (Daftar hero): #ph-list = daftar utama hero yang sudah dipakai + #ph-add (cari + Tambah).
+  // banpick.html: hanya panel akun; pencatatan dari kartu rekomendasi, "dipakai Nx", tiebreak. Tanpa daftar.
   if (typeof document === "undefined") return;
   var panel = document.getElementById("ph-auth"), box = document.getElementById("ph-list");
-  if (!panel || !box) return;
+  if (!panel) return;
   var BP = window.__banpick || {}, H = (window.BANPICK_DATA && window.BANPICK_DATA.heroes) || {};
   var $ = function (id) { return document.getElementById(id); };
   var msgEl = $("ph-msg"), whoEl = $("ph-who"), formEl = $("ph-form"), outBtn = $("ph-out");
@@ -161,31 +163,39 @@
   function rerender() { if (BP.render) BP.render(); }
   function hideAdd() { var el = $("ph-add"); if (el) el.hidden = true; }
   function showAdd(on) { var el = $("ph-add"); if (el) el.hidden = !on; }
-  function disabled(t) { formEl.hidden = true; outBtn.hidden = true; whoEl.textContent = ""; msg(t); hideAdd(); box.innerHTML = '<p class="bp-empty">Daftar hero yang sudah dipakai tidak tersedia.</p>'; }
+  function disabled(t) {
+    formEl.hidden = true; outBtn.hidden = true; whoEl.textContent = ""; msg(t); hideAdd();
+    var html = '<p class="bp-empty">Daftar hero yang sudah dipakai tidak tersedia.</p>';
+    if (box) box.innerHTML = html;
+  }
+  var FAIL = box ? "Daftar hero yang sudah dipakai tidak tersedia" : "Akun dan catatan pick tidak tersedia";
+  var KEEP = box ? "" : " Ban & Pick tetap jalan.";
 
   var cfg = window.SUPABASE_CONFIG, lib = window.supabase;
-  if (!cfg || !lib || typeof lib.createClient !== "function") { disabled("Daftar hero yang sudah dipakai tidak tersedia (Supabase gagal dimuat). Ban & Pick tetap jalan."); return; }
+  if (!cfg || !lib || typeof lib.createClient !== "function") { disabled(FAIL + " (Supabase gagal dimuat)." + KEEP); return; }
   var client;
   try { client = lib.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); }
-  catch (e) { disabled("Daftar hero yang sudah dipakai tidak tersedia. Ban & Pick tetap jalan."); return; }
+  catch (e) { disabled(FAIL + "." + KEEP); return; }
 
   var BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
   function tgl(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.getDate() + " " + BULAN[d.getMonth()] + " " + d.getFullYear(); }
   function baseLine(h) {
     var b = h.baselineInfo(); if (!b) return "";
     var t = b.updated ? tgl(b.updated) : "";
-    return '<p class="ph-base">Data HoK Camp: ' + b.heroes + " hero, " + b.matches.toLocaleString("id-ID") + " match" + (t ? ", diperbarui " + t : "") + ". Dijumlahkan dengan riwayat pick untuk urutan jarang dipakai.</p>";
+    return '<p class="ph-base">Data HoK Camp: ' + b.heroes + " hero, " + b.matches.toLocaleString("id-ID") + " match" + (t ? ", diperbarui " + t : "") + ". Dijumlahkan dengan catatan di situs.</p>";
   }
   function renderList(h) {
+    if (!box) return;
     showAdd(h.enabled());
     if (!h.enabled()) { box.innerHTML = '<p class="bp-empty">Masuk dulu untuk menyimpan dan melihat hero yang sudah kamu pakai.</p>'; return; }
     var keys = h.usedList().slice().sort(function (a, b) { return h.used(b) - h.used(a) || nm(a).localeCompare(nm(b)); });
     var sum = 0; keys.forEach(function (k) { sum += h.used(k); });
-    var empty = keys.length ? "" : '<p class="bp-empty">Belum ada hero yang tercatat. Cari hero di bawah lalu pencet Tambah, atau pencet kartu rekomendasi pick.</p>';
+    var empty = keys.length ? "" : '<p class="bp-empty">Belum ada hero yang tercatat. Cari hero di bawah lalu pencet Tambah, atau pencet kartu rekomendasi pick di Ban &amp; Pick.</p>';
     var total = keys.length ? '<p class="ph-total">Total ' + sum.toLocaleString("id-ID") + " match, " + keys.length + " hero</p>" : "";
     var list = keys.length ? '<ul class="ph-rows">' + keys.map(function (k) {
       var histN = h.count(k);
-      return '<li>' + icon(k) + '<span class="ph-name">' + esc(nm(k)) + '</span><span class="ph-n">' + h.used(k).toLocaleString("id-ID") + ' match</span>' +
+      return '<li>' + icon(k) + '<span class="ph-name">' + esc(nm(k)) + '</span><span class="ph-n">' + h.used(k).toLocaleString("id-ID") + ' match' +
+        (histN > 0 && h.baseline(k) > 0 ? ' <small class="ph-src">(Camp ' + h.baseline(k).toLocaleString("id-ID") + " + situs " + histN + ")</small>" : "") + '</span>' +
         '<button type="button" class="ph-btn" data-act="plus" data-s="' + esc(k) + '" aria-label="Tambah satu match ' + esc(nm(k)) + '">+1</button>' +
         '<button type="button" class="ph-btn" data-act="minus" data-s="' + esc(k) + '" aria-label="Kurangi satu catatan ' + esc(nm(k)) + '"' + (histN < 1 ? " disabled" : "") + '>&minus;1</button></li>';
     }).join("") + "</ul>" : "";
@@ -204,7 +214,7 @@
     BP.hooks.onAllyRemove = function (slug) { hist.undo(slug); };
     BP.hooks.onReset = function () { hist.newDraft(); };
   }
-  box.addEventListener("click", function (ev) {
+  if (box) box.addEventListener("click", function (ev) {
     var b = ev.target.closest(".ph-btn"); if (!b || b.disabled) return;
     var act = b.getAttribute("data-act"), s = b.getAttribute("data-s");
     b.disabled = true;
