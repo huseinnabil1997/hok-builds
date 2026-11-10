@@ -1,79 +1,67 @@
 (function () {
   "use strict";
 
-  // Skor duo/trio (aturan 2): trio lengkap dihitung penuh dan menutup pasangannya; pasangan K-X yang belum tertutup
-  // dihitung sekali = max(duo asli, trio{K,X,Z} x w). w = duo(K,X) / (duo(K,X) + duo(K,Z) + duo(X,Z));
-  // kalau jumlahnya 0, w = 0,5. Seri dimenangkan duo asli. Tidak ada pasangan dihitung dua kali.
-  // trios: semua trio yang memuat k, bentuk { v, others: [a, b] }.
-  function comboScore(k, team, duoFn, trios, same, nm, sfx) {
-    var parts = [], total = 0, covered = {};
-    function member(o) { for (var i = 0; i < team.length; i++) if (same(o, team[i])) return team[i]; return null; }
-    trios.forEach(function (t) {
-      var a = member(t.others[0]), b = member(t.others[1]);
-      if (!a || !b || a === b) return;
-      total += t.v; covered[a] = covered[b] = true;
-      parts.push({ cls: "plus", t: "Trio dengan " + nm(a) + " dan " + nm(b) + sfx, v: t.v });
+  // Ban & Pick (satu-satunya halaman). Data: data/banpick-merged.js (scripts/build-banpick-merged.mjs),
+  // gabungan HoK CN (王者营地), HoK Camp, dan hokstats.gg. Hubungan dihitung ya/tidak, satu kali per pasangan
+  // walaupun dicatat lebih dari satu sumber. Skor hanya dipakai untuk mengurutkan; tidak ditampilkan.
+  //   counter(A, B): A meng-counter B (H[A].counters[B]).
+  //   partner(A, B): duo / partner (H[A].partners[B], simetris).
+  //   trio {K, X, Y}: dihitung kalau dua anggota lain sudah ada di tim yang dimaksud.
+  function counterHit(H, a, b) { return !!(H[a] && H[a].counters && H[a].counters[b]); }
+  function partnerHit(H, a, b) { return !!((H[a] && H[a].partners && H[a].partners[b]) || (H[b] && H[b].partners && H[b].partners[a])); }
+  function triosOf(T, k, team) {
+    var out = [];
+    (T || []).forEach(function (t) {
+      if (t.h.indexOf(k) < 0) return;
+      var others = t.h.filter(function (s) { return s !== k; });
+      if (others.every(function (o) { return team.indexOf(o) >= 0; })) out.push(others);
     });
-    team.forEach(function (m) {
-      if (covered[m]) return;
-      var d = duoFn(k, m) || 0, h = 0, z = null, wUsed = 0;
-      trios.forEach(function (t) {
-        for (var i = 0; i < 2; i++) {
-          if (!same(t.others[i], m)) continue;
-          var zSlug = t.others[1 - i];
-          var km = d, kz = duoFn(k, zSlug) || 0, mz = duoFn(m, zSlug) || 0;
-          var sum = km + kz + mz, w = sum ? km / sum : 0.5, part = t.v * w;
-          if (part > h) { h = part; z = zSlug; wUsed = w; }
-        }
-      });
-      if (d > 0 && d >= h) { total += d; parts.push({ cls: "plus", t: "Duo dengan " + nm(m) + sfx, v: d }); }
-      else if (h > 0) { total += h; parts.push({ cls: "plus", t: "Bagian dari trio " + nm(k) + "-" + nm(m) + "-" + nm(z) + " (x" + fmt(wUsed) + ")" + sfx, v: h }); }
+    return out;
+  }
+  // Pick K: +1 tiap musuh yang di-counter K, -1 tiap musuh yang meng-counter K, +1 tiap partner K di tim kita,
+  // +1 tiap trio lengkap dengan tim kita.
+  function pickScore(D, k, ally, enemy, nm) {
+    var H = D.heroes, parts = [], total = 0;
+    enemy.forEach(function (e) {
+      if (counterHit(H, k, e)) { total += 1; parts.push({ cls: "plus", t: "Counter " + nm(e) }); }
+      if (counterHit(H, e, k)) { total -= 1; parts.push({ cls: "minus", t: "Di-counter " + nm(e) }); }
     });
+    ally.forEach(function (a) { if (partnerHit(H, k, a)) { total += 1; parts.push({ cls: "plus", t: "Partner " + nm(a) }); } });
+    triosOf(D.trios, k, ally).forEach(function (m) { total += 1; parts.push({ cls: "plus", t: "Trio dengan " + m.map(nm).join(" + ") }); });
     return { total: total, parts: parts };
   }
-  // Total poin satu tim (dipakai badge di sebelah "Hero tim kita" / "Hero musuh"): trio lengkap di dalam tim
-  // dihitung sekali dan menutup ketiga pasangannya; pasangan sisa dihitung duo asli sekali. Trio x w tidak dipakai
-  // karena hero ketiga sudah pasti ada (trio lengkap) atau tidak ada. triosOf(k): trio yang memuat k, bentuk { v, others }.
-  function teamCombo(team, duoFn, triosOf, same, nm) {
-    var parts = [], total = 0, covered = {}, seen = {};
-    function member(o) { for (var i = 0; i < team.length; i++) if (same(o, team[i])) return team[i]; return null; }
-    function pk(a, b) { return [a, b].sort().join("+"); }
-    team.forEach(function (k) {
-      triosOf(k).forEach(function (t) {
-        var a = member(t.others[0]), b = member(t.others[1]);
-        if (!a || !b || a === b || a === k || b === k) return;
-        var m = [k, a, b].sort(function (x, y) { return team.indexOf(x) - team.indexOf(y); }), key = m.slice().sort().join("+");
-        if (!seen[key] || t.v > seen[key].v) seen[key] = { v: t.v, m: m };
-      });
-    });
-    Object.keys(seen).forEach(function (key) {
-      var t = seen[key], m = t.m;
-      total += t.v; covered[pk(m[0], m[1])] = covered[pk(m[0], m[2])] = covered[pk(m[1], m[2])] = true;
-      parts.push({ t: "Trio " + m.map(nm).join(" + "), v: t.v });
-    });
-    for (var i = 0; i < team.length; i++) for (var j = i + 1; j < team.length; j++) {
-      if (covered[pk(team[i], team[j])]) continue;
-      var d = duoFn(team[i], team[j]) || 0;
-      if (d > 0) { total += d; parts.push({ t: "Duo " + nm(team[i]) + " + " + nm(team[j]), v: d }); }
-    }
+  // Ban K: +1 tiap hero tim kita yang di-counter K, +1 tiap partner K di musuh, +1 tiap trio lengkap dengan musuh.
+  function banScore(D, k, ally, enemy, nm) {
+    var H = D.heroes, parts = [], total = 0;
+    ally.forEach(function (a) { if (counterHit(H, k, a)) { total += 1; parts.push({ cls: "plus", t: "Counter " + nm(a) + " (tim kita)" }); } });
+    enemy.forEach(function (e) { if (partnerHit(H, k, e)) { total += 1; parts.push({ cls: "plus", t: "Partner " + nm(e) + " (musuh)" }); } });
+    triosOf(D.trios, k, enemy).forEach(function (m) { total += 1; parts.push({ cls: "plus", t: "Trio dengan " + m.map(nm).join(" + ") + " (musuh)" }); });
     return { total: total, parts: parts };
   }
-  if (typeof window !== "undefined") window.__comboScore = comboScore;
-  if (typeof window !== "undefined") window.__teamCombo = teamCombo;
-  var D = window.BANPICK_DATA;
-  if (!D) return;
+
+  // Riwayat pick: jumlah berapa kali user pernah pick hero. Belum ada sumbernya, jadi 0 untuk semua hero.
+  // Nanti cukup pasang window.getHeroPickCount = function (slug) { return n; } (mis. dari Supabase) lalu render ulang.
+  function getPickCount(slug) {
+    var f = typeof window !== "undefined" && window.getHeroPickCount;
+    var n = typeof f === "function" ? Number(f(slug)) : 0;
+    return isFinite(n) && n > 0 ? n : 0;
+  }
+  // Urutan: skor (tidak ditampilkan), lalu paling jarang di-pick user, lalu tier hokstats (S+ > S > A > B > C > D,
+  // tanpa tier paling belakang), lalu WR (pick) / BR (ban), lalu nama.
+  var TIERS = ["S+", "S", "A", "B", "C", "D"];
+  function tierRank(t) { var i = TIERS.indexOf(String(t || "").toUpperCase()); return i < 0 ? TIERS.length : i; }
+  function rank(rows, H, key, nm, pickCount) {
+    var pc = pickCount || getPickCount;
+    return rows.sort(function (a, b) {
+      return b.s.total - a.s.total || pc(a.k) - pc(b.k) || tierRank(H[a.k].tier) - tierRank(H[b.k].tier) ||
+        (H[b.k][key] || 0) - (H[a.k][key] || 0) || nm(a.k).localeCompare(nm(b.k));
+    });
+  }
+  if (typeof window !== "undefined") window.__banpick = { counterHit: counterHit, partnerHit: partnerHit, triosOf: triosOf, pickScore: pickScore, banScore: banScore, rank: rank, tierRank: tierRank, getPickCount: getPickCount };
+
+  var D = typeof window !== "undefined" && window.BANPICK_DATA;
+  if (!D || typeof document === "undefined") return;
   var H = D.heroes, SEL = D.selectable;
-  // Lane ganda: hero tetap lolos filter kalau salah satu lane-nya nyala.
-  // Chicha main Clash dan Farm; data sumber cuma menulis Clash Lane.
-  (function () {
-    var h = H.chicha;
-    if (!h) return;
-    var parts = String(h.lane || "").split("/").map(function (p) { return p.trim(); }).filter(Boolean);
-    if (parts.indexOf("Farm Lane") < 0) parts.unshift("Farm Lane");
-    h.lane = parts.join("/");
-    h.clash = parts.length === 1 && parts[0] === "Clash Lane";
-  })();
-  var NAME = { "flowborn-generic": "Flowborn (varian apa pun)" }; SEL.forEach(function (s) { NAME[s.slug] = s.name; });
   var state = { ban: [], ally: [], enemy: [] };
   var LABEL = { ban: "di-ban", ally: "tim kita", enemy: "musuh" };
   var ROLES = ["Tank", "Fighter", "Assassin", "Mage", "Marksman", "Support"];
@@ -82,11 +70,8 @@
   var laneOn = {}; LANES.forEach(function (l) { laneOn[l] = true; });
   var TOP = 10;
 
-  function isFlow(s) { return s === "flowborn" || (s.indexOf("flowborn-") === 0 && s !== "flowborn-generic"); }
-  function same(listSlug, slug) { return listSlug === slug || (listSlug === "flowborn-generic" && isFlow(slug)); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function fmt(n) { return (Math.round(n * 100) / 100).toLocaleString("id-ID", { maximumFractionDigits: 2 }); }
-  function nm(s) { return NAME[s] || (H[s] && H[s].name) || s; }
+  function nm(s) { return (H[s] && H[s].name) || s; }
   // Ikon hero (data/hero-icons.js). Kalau tidak ada / gagal dimuat, tampil inisial.
   var ICONS = window.HERO_ICONS || {};
   function initials(name) {
@@ -97,94 +82,20 @@
     var img = ICONS[s] ? '<img src="' + esc(ICONS[s]) + '" alt="" loading="lazy" onerror="this.remove()"/>' : "";
     return '<span class="hero-ico" aria-hidden="true">' + esc(initials(nm(s))) + img + "</span>";
   }
-
-  // Counter(a -> b): a counters b
-  function counterVal(a, b) {
-    var best = 0, ha = H[a], hb = H[b];
-    if (ha) ha.counters.forEach(function (x) { if (same(x.slug, b) && x.v > best) best = x.v; });
-    if (hb) hb.countered_by.forEach(function (x) { if (same(x.slug, a) && x.v > best) best = x.v; });
-    return best;
-  }
-  function duoVal(a, b) {
-    var best = 0, ha = H[a], hb = H[b];
-    if (ha) ha.duo.forEach(function (x) { if (same(x.slug, b) && x.v > best) best = x.v; });
-    if (hb) hb.duo.forEach(function (x) { if (same(x.slug, a) && x.v > best) best = x.v; });
-    return best;
-  }
-  // trios that contain candidate k, from k's list and from team members' lists (deduped)
-  // minOnTeam: pick = 2 (dua rekan sudah di tim → trio lengkap kalau K di-pick); ban = 2 (dua musuh sudah di combo)
-  function trioParts(k, team, minOnTeam) {
-    var need = minOnTeam == null ? 2 : minOnTeam;
-    var best = {};
-    [k].concat(team).forEach(function (src) {
-      var h = H[src]; if (!h) return;
-      (h.trio || []).forEach(function (t) {
-        var ki = -1;
-        for (var i = 0; i < 3; i++) if (same(t.h[i], k)) { ki = i; break; }
-        if (ki < 0) return;
-        var others = t.h.filter(function (_, i) { return i !== ki; });
-        var hit = others.filter(function (o) { return team.some(function (m) { return same(o, m); }); });
-        if (hit.length < need) return;
-        var key = others.slice().sort().join("+");
-        var scored = t.v;
-        if (!best[key] || scored > best[key].v || (scored === best[key].v && t.v > best[key].raw)) {
-          best[key] = { v: scored, raw: t.v, members: others };
-        }
-      });
-    });
-    return Object.keys(best).map(function (key) { return best[key]; });
-  }
-
-  // Duo/trio aturan 2 (lihat comboScore); trio diambil dari daftar trio K dan anggota tim (trioParts minOnTeam 0).
-  function combo(k, team, sfx) {
-    var trios = trioParts(k, team, 0).map(function (t) { return { v: t.v, others: t.members }; });
-    return comboScore(k, team, duoVal, trios, same, nm, sfx);
-  }
-  function scorePick(k) {
-    var parts = [], total = 0;
-    state.enemy.forEach(function (e) {
-      var c = counterVal(k, e); if (c) { total += c; parts.push({ cls: "plus", t: "Counter " + nm(e), v: c }); }
-      var d = counterVal(e, k); if (d) { total -= d; parts.push({ cls: "minus", t: "Di-counter " + nm(e), v: -d }); }
-    });
-    var c = combo(k, state.ally, ""); total += c.total; parts = parts.concat(c.parts);
-    return { total: total, parts: parts };
-  }
-  function scoreBan(k) {
-    var parts = [], total = 0;
-    state.ally.forEach(function (a) { var c = counterVal(k, a); if (c) { total += c; parts.push({ cls: "plus", t: "Counter " + nm(a) + " (tim kita)", v: c }); } });
-    var c = combo(k, state.enemy, " (musuh)"); total += c.total; parts = parts.concat(c.parts);
-    return { total: total, parts: parts };
-  }
-
-  // Total poin tim: counter hero tim ke hero lawan + duo/trio di dalam tim (teamCombo). Di-counter lawan masuk ke total lawan.
-  function teamScore(team, opp) {
-    var parts = [], total = 0;
-    team.forEach(function (a) { opp.forEach(function (e) { var c = counterVal(a, e); if (c) { total += c; parts.push({ t: nm(a) + " counter " + nm(e), v: c }); } }); });
-    var c = teamCombo(team, duoVal, function (k) { return trioParts(k, team, 2).map(function (t) { return { v: t.v, others: t.members }; }); }, same, nm);
-    return { total: total + c.total, parts: parts.concat(c.parts) };
-  }
-  function renderTotals() {
-    [["ally", state.ally, state.enemy], ["enemy", state.enemy, state.ally]].forEach(function (x) {
-      var el = document.getElementById("total-" + x[0]); if (!el) return;
-      var sc = teamScore(x[1], x[2]);
-      el.textContent = fmt(sc.total) + " poin";
-      el.title = sc.parts.length ? sc.parts.map(function (p) { return p.t + ": +" + fmt(p.v); }).join("\n") : "Belum ada poin";
-    });
-  }
+  function isClashOnly(h) { return String(h.lane || "").split("/").map(function (p) { return p.trim(); }).join("/") === "Clash Lane"; }
 
   function taken() { return state.ban.concat(state.ally, state.enemy); }
 
-  function card(k, sc, rank) {
+  function card(k, sc, rk) {
     var h = H[k];
-    var parts = sc.parts.map(function (p) { return '<li class="' + p.cls + '"><span>' + esc(p.t) + '</span><b>' + (p.v > 0 ? "+" : "") + fmt(p.v) + "</b></li>"; }).join("");
+    var parts = sc.parts.map(function (p) { return '<li class="' + p.cls + '"><span>' + esc(p.t) + "</span></li>"; }).join("");
     var foot = h.page ? '<a class="bp-link" href="heroes/' + k + '.html">Lihat halaman build &rarr;</a>'
       : (h.nobuild === "clash" ? '<div class="bp-clash">Lane utama Clash, build lengkap tidak dibuat</div>' : '<div class="bp-pending">Build belum tersedia</div>');
     var title = h.page ? '<a href="heroes/' + k + '.html">' + esc(h.name) + "</a>" : esc(h.name);
-    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rank + '</span><div class="bp-title"><h3>' + icon(k) + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (h.clash ? '<span class="badge clash">Clash</span>' : "") + '</div><span class="bp-score">' + fmt(sc.total) + '</span></div><ul class="bp-why">' + parts + "</ul>" + foot + "</article>";
+    return '<article class="bp-card"><div class="bp-head"><span class="bp-rank">' + rk + '</span><div class="bp-title"><h3>' + icon(k) + title + '</h3><span class="bp-role">' + esc(h.role) + " | " + esc(h.lane) + "</span>" + (isClashOnly(h) ? '<span class="badge clash">Clash</span>' : "") + '</div></div><ul class="bp-why">' + parts + "</ul>" + foot + "</article>";
   }
 
   function render() {
-    renderTotals();
     var t = taken();
     var cands = Object.keys(H).filter(function (k) { return t.indexOf(k) < 0; });
     var pickEl = document.getElementById("out-pick"), banEl = document.getElementById("out-ban");
@@ -195,28 +106,27 @@
     // Role/lane kosong (belum ada data) tidak disaring: tetap ikut rekomendasi.
     function roleOk(k) {
       if (!String(H[k].role || "").trim()) return true;
-      var parts = String(H[k].role || "").split("/");
-      return parts.some(function (p) { return roleOn[p.trim()]; });
+      return String(H[k].role).split("/").some(function (p) { return roleOn[p.trim()]; });
     }
     function laneOk(k) {
       if (!String(H[k].lane || "").trim()) return true;
-      var parts = String(H[k].lane || "").split("/");
-      return parts.some(function (p) { return laneOn[p.trim()]; });
+      return String(H[k].lane).split("/").some(function (p) { return laneOn[p.trim()]; });
     }
-    function list(fn, el, emptyMsg, opts) {
+    function list(fn, el, emptyMsg, key, filter) {
       var rows = cands.map(function (k) { return { k: k, s: fn(k) }; }).filter(function (r) { return r.s.total > 0; });
-      if (opts.role) rows = rows.filter(function (r) { return roleOk(r.k); });
-      if (opts.lane) rows = rows.filter(function (r) { return laneOk(r.k); });
-      rows.sort(function (a, b) { return b.s.total - a.s.total || nm(a.k).localeCompare(nm(b.k)); });
+      if (filter) rows = rows.filter(function (r) { return roleOk(r.k) && laneOk(r.k); });
+      rank(rows, H, key, nm);
       el.innerHTML = rows.length ? rows.slice(0, TOP).map(function (r, i) { return card(r.k, r.s, i + 1); }).join("") : '<p class="bp-empty">' + emptyMsg + "</p>";
     }
     var anyRole = ROLES.some(function (r) { return roleOn[r]; });
     var anyLane = LANES.some(function (l) { return laneOn[l]; });
     if (!anyRole) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu role.</p>';
     else if (!anyLane) pickEl.innerHTML = '<p class="bp-empty">Pilih minimal satu lane.</p>';
-    else list(scorePick, pickEl, "Belum ada hero role dan lane ini yang cocok untuk pilihan ini.", { role: true, lane: true });
-    list(scoreBan, banEl, "Belum ada data counter / sinergi yang cocok untuk pilihan ini.", {});
+    else list(function (k) { return pickScore(D, k, state.ally, state.enemy, nm); }, pickEl, "Belum ada hero role dan lane ini yang cocok untuk pilihan ini.", "wr", true);
+    list(function (k) { return banScore(D, k, state.ally, state.enemy, nm); }, banEl, "Belum ada data counter / partner yang cocok untuk pilihan ini.", "br", false);
   }
+  // Untuk riwayat pick nanti: panggil setelah window.getHeroPickCount siap.
+  window.__banpick.render = render;
 
   function setMsg(m) { var el = document.getElementById("bp-msg"); el.textContent = m || ""; }
   function renderChips(key) {
@@ -236,7 +146,7 @@
       var q = input.value.trim().toLowerCase(), t = taken();
       opts = SEL.filter(function (s) { return t.indexOf(s.slug) < 0 && (!q || s.name.toLowerCase().indexOf(q) >= 0 || s.slug.indexOf(q) >= 0); }).sort(function (a, b) { function r(s) { var n = s.name.toLowerCase(); return !q ? 0 : n === q ? 0 : n.indexOf(q) === 0 ? 1 : 2; } return r(a) - r(b); }).slice(0, 12);
       if (!opts.length) { ac.innerHTML = '<li class="ac-none">Tidak ada hero yang cocok</li>'; ac.classList.remove("hidden"); return; }
-      ac.innerHTML = opts.map(function (s, i) { return '<li data-i="' + i + '"' + (i === active ? ' class="on"' : "") + ">" + esc(s.name) + (s.data ? "" : ' <small>(tanpa data sendiri)</small>') + "</li>"; }).join("");
+      ac.innerHTML = opts.map(function (s, i) { return '<li data-i="' + i + '"' + (i === active ? ' class="on"' : "") + ">" + esc(s.name) + "</li>"; }).join("");
       ac.classList.remove("hidden");
     }
     function choose(i) { if (opts[i] && add(key, opts[i].slug)) { input.value = ""; } skipFocus = true; close(); input.focus(); }

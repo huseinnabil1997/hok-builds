@@ -871,7 +871,6 @@ details.cond > .cond-body { padding: 1.35rem 1.4rem 1.5rem 1.4rem !important; }
 .bp-title h3 a { color: var(--text); text-decoration: none; }
 .bp-title h3 a:hover { color: var(--accent); }
 .bp-role { font-size: 0.76rem; color: var(--muted); }
-.bp-score { flex: 0 0 auto; font-weight: 800; font-size: 1.05rem; color: var(--ok); padding: 0.2rem 0.6rem; border-radius: var(--radius-sm); background: rgba(61,186,122,0.12); border: 1px solid rgba(61,186,122,0.35); }
 .bp-why { list-style: none; margin: 0.7rem 0 0; padding: 0; display: grid; gap: 0.25rem; font-size: 0.82rem; }
 .bp-why li { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.3rem 0.55rem; background: var(--bg-elev); border-radius: 6px; }
 .bp-why li b { font-variant-numeric: tabular-nums; }
@@ -999,7 +998,6 @@ button, input, select { font-family: inherit; }
 #bp-reset { background: var(--card); color: var(--text-strong); border: 1px solid var(--accent-line); border-radius: var(--radius-pill); padding: 0.4rem 1rem; cursor: pointer; }
 .chip { background: var(--card-soft); border-color: var(--accent-line); color: var(--text-strong); }
 .bp-rank { background: var(--accent-grad); color: #fff; }
-.bp-score { color: #a87a2a; background: var(--accent-soft); border-color: var(--accent-line); }
 .ac-list { border: 0; }
 .ac-list li:hover, .ac-list li.on { background: var(--accent-soft); }
 .hero-ico { border-color: var(--accent-line); background: var(--card-soft); color: #a87a2a; }
@@ -1031,7 +1029,7 @@ body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, 
 body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) calc(var(--hero-art-top, 0px) + max(48vh, 320px)), var(--hero-bg-2, #f6f6f6) calc(var(--hero-art-top, 0px) + max(48vh, 320px) + 60vh), #f6f6f6 100%); }
 
 /* Pola mlbb-banpick (css/style.css:229-257 di repo itu): art di bawah header, konten
-   didorong turun saat ada art supaya wajah terlihat, kartu tembus pandang + blur,
+   tidak digeser saat art muncul (art diam di belakang kartu), kartu tembus pandang + blur,
    art tajam di atas versi blur yang memenuhi lebar. Palet tetap terang/emas HoK Camp. */
 .hero-art { height: max(46vh, 300px); min-height: 0; }
 .hero-art-layer { background: none !important; overflow: hidden; }
@@ -1039,18 +1037,15 @@ body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, 
 .hero-art-layer::before { content: ""; position: absolute; inset: -40px; background: var(--art) center 20% / cover no-repeat; filter: blur(28px) brightness(1.08) saturate(1.1); }
 .hero-art-layer::after { content: ""; position: absolute; inset: 0; background: var(--art) var(--art-pos, 50% 0) / cover no-repeat; }
 .hero-art-fade { background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, var(--hero-bg-1, #f6f6f6) 100%); }
-body.hero-bg .wrap { transition: padding-top 0.6s ease; }
-body.hero-bg.has-art .wrap { padding-top: clamp(150px, 26vh, 230px); }
 body.hero-bg .bp-inputs { background: rgba(255,255,255,0.84); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) calc(var(--hero-art-top, 0px) + max(46vh, 300px)), var(--hero-bg-2, #f6f6f6) calc(var(--hero-art-top, 0px) + max(46vh, 300px) + 60vh), #f6f6f6 100%); }
 @media (min-width: 561px) {
   .hero-art { height: max(62vh, 380px); }
   .hero-art-layer::after { background-size: auto 100%; background-position: center top;
     -webkit-mask-image: linear-gradient(90deg, transparent 18%, #000 32%, #000 68%, transparent 82%); mask-image: linear-gradient(90deg, transparent 18%, #000 32%, #000 68%, transparent 82%); }
-  body.hero-bg.has-art .wrap { padding-top: clamp(200px, 36vh, 340px); }
   body.hero-bg { background: linear-gradient(180deg, var(--hero-bg-1, #f6f6f6) 0, var(--hero-bg-1, #f6f6f6) calc(var(--hero-art-top, 0px) + max(62vh, 380px)), var(--hero-bg-2, #f6f6f6) calc(var(--hero-art-top, 0px) + max(62vh, 380px) + 60vh), #f6f6f6 100%); }
 }
-@media (prefers-reduced-motion: reduce) { body.hero-bg .wrap, .hero-art-layer, .hero-art-fade, body.hero-bg { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-art-layer, .hero-art-fade, body.hero-bg { transition: none; } }
 /* Latar hero diam saat halaman di-scroll: art + gradien di lapisan position:fixed (bukan
    background-attachment:fixed, yang tidak jalan di iOS Safari). Konten bergulir di atasnya. */
 .hero-art { position: fixed; }
@@ -1085,5 +1080,3 @@ body.hero-bg::before { content: ""; position: fixed; inset: 0; z-index: -2; poin
 .pro-logo-sm { width: 1rem; height: 1rem; object-fit: contain; vertical-align: -3px; margin-right: .2rem; }
 .pro-item.predicted img { border-style: dashed; opacity: .82; }
 .pro-note { margin-top: .5rem; }
-.bp-total { display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.5rem; border-radius: 32px; font-size: 0.78rem; font-weight: 800; text-transform: none; letter-spacing: 0; color: #a87a2a; background: var(--accent-soft); border: 1px solid var(--accent-line); cursor: help; }
-.bp-why li.bp-stat { color: var(--muted); font-size: 0.78rem; }

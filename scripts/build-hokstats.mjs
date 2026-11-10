@@ -1,4 +1,4 @@
-// Bangun data/hokstats-banpick.js dari hokstats.gg (server internasional, region 608) untuk banpick-hokstats.html.
+// Bangun data/hokstats-banpick.js dari hokstats.gg (server internasional, region 608) (salah satu input scripts/build-banpick-merged.mjs untuk banpick.html).
 // Sumber (HTML statis + JSON publik, tanpa login; robots.txt hokstats mengizinkan "/" untuk User-agent *):
 //   https://hokstats.gg/counters/            -> lane, tier editorial, "Strong against" / "Countered by" (tanpa angka)
 //   https://hokstats.gg/official-popularity/ -> role, band popularitas, win/pick/ban rate ranked (HOK Camp)

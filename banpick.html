@@ -4,13 +4,13 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Ban &amp; Pick - HoK S16</title>
-<link rel="stylesheet" href="css/style.css?v=20261021a"/>
+<link rel="stylesheet" href="css/style.css?v=20261110a"/>
 </head>
 <body>
 <header class="app-header">
   <h1>Ban &amp; Pick</h1>
-  <p class="sub">Rekomendasi pick &amp; ban dari data counter / sinergi | Global Season 16</p>
-  <nav class="top-nav"><a href="index.html">Daftar hero</a><a href="banpick.html" class="active">Ban &amp; Pick</a><a href="banpick-simple.html">Ban &amp; Pick Simpel</a><a href="banpick-camp.html">Ban &amp; Pick HoK Camp</a><a href="banpick-hokstats.html">Ban &amp; Pick hokstats</a></nav>
+  <p class="sub">Rekomendasi pick &amp; ban dari counter dan partner gabungan HoK CN, HoK Camp, dan hokstats.gg | Global Season 16</p>
+  <nav class="top-nav"><a href="index.html">Daftar hero</a><a href="banpick.html" class="active">Ban &amp; Pick</a></nav>
 </header>
 <main class="wrap bp-wrap">
   <section class="bp-inputs">
@@ -20,12 +20,12 @@
       <ul class="ac-list hidden" id="ac-ban"></ul>
     </div>
     <div class="bp-field" data-list="ally">
-      <label for="in-ally">Hero tim kita <span class="bp-total" id="total-ally">0 poin</span></label>
+      <label for="in-ally">Hero tim kita</label>
       <div class="chip-box"><div class="chips" id="chips-ally"></div><input id="in-ally" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
       <ul class="ac-list hidden" id="ac-ally"></ul>
     </div>
     <div class="bp-field" data-list="enemy">
-      <label for="in-enemy">Hero musuh <span class="bp-total" id="total-enemy">0 poin</span></label>
+      <label for="in-enemy">Hero musuh</label>
       <div class="chip-box"><div class="chips" id="chips-enemy"></div><input id="in-enemy" data-speech="pick" type="text" placeholder="Ketik nama hero..." autocomplete="off"/></div>
       <ul class="ac-list hidden" id="ac-enemy"></ul>
     </div>
@@ -59,38 +59,21 @@
   </section>
 
   <section class="bp-formula">
-    <h2 class="section-title">Cara hitung skor</h2>
-    <div class="formula-grid">
-      <div class="formula-card">
-        <h3>Skor pick (kandidat K)</h3>
-        <p class="formula">Skor = &Sigma; Counter(K &rarr; musuh) &minus; &Sigma; Counter(musuh &rarr; K) + &Sigma; Trio lengkap(K, tim kita) + &Sigma; pasangan sisa max(Duo, Trio &times; w)</p>
-      </div>
-      <div class="formula-card">
-        <h3>Skor ban (kandidat K)</h3>
-        <p class="formula">Skor = &Sigma; Counter(K &rarr; tim kita) + &Sigma; Trio lengkap(K, musuh) + &Sigma; pasangan sisa max(Duo, Trio &times; w)</p>
-      </div>
-    </div>
+    <h2 class="section-title">Cara urut</h2>
     <ul class="formula-notes">
-      <li><strong>Total poin tim</strong> (badge di sebelah Hero tim kita / Hero musuh) = &Sigma; Counter(hero tim &rarr; hero lawan) + &Sigma; Trio lengkap di dalam tim (sekali per trio, menutup ketiga pasangannya) + &Sigma; Duo pasangan sisa di dalam tim (sekali per pasangan). Trio &times; w tidak dipakai karena hero ketiga sudah pasti ada atau tidak ada. Di-counter lawan tidak mengurangi; nilainya masuk ke total lawan. Arahkan kursor ke badge untuk rinciannya.</li>
-      <li><strong>Counter(A &rarr; B)</strong> = <code>counter_index</code> jika B ada di daftar <em>Counter</em> milik A, atau A ada di daftar <em>Di-counter</em> milik B. Kalau tercatat di dua daftar, dipakai nilai terbesar (dihitung sekali).</li>
-      <li><strong>Duo(A, B)</strong> = <code>synergy_index</code> duo antara A dan B (dari daftar duo A atau B, nilai terbesar, sekali).</li>
-      <li><strong>Aturan duo/trio</strong> (berlaku untuk pick dan ban, S = tim kita untuk pick, musuh untuk ban):
-        (1) <em>Trio lengkap</em>: tiap trio {K, X, Y} dengan X dan Y sudah di S dihitung penuh ("Trio dengan X dan Y"; <code>synergy_index</code> trio).
-        (2) Pasangan K-X dan K-Y dari trio lengkap itu ditandai sudah tertutup.
-        (3) Tiap X di S yang belum tertutup dihitung <em>sekali</em> = max(Duo(K, X), Trio{K, X, Z} &times; w) untuk Z mana pun. w = Duo(K, X) / (Duo(K, X) + Duo(K, Z) + Duo(X, Z)); kalau jumlahnya 0, w = 0,5. Kalau duo asli yang terbesar (atau seri) alasannya "Duo dengan X", kalau tidak "Bagian dari trio K-X-Z" plus pengali yang dipakai (misalnya x0,25).
-        Tidak ada pasangan yang dihitung dua kali.</li>
-      <li>Semua angka diambil apa adanya dari data. Tidak ada bobot tambahan atau angka karangan. Hero yang sudah di-ban / di-pick tidak direkomendasikan.</li>
-      <li>Flowborn: data v2 menulis Flowborn per varian; entri lama &quot;Flowborn&quot; tanpa varian (jika masih ada) dicocokkan ke semua varian.</li>
-      <li>Filter role dan lane hanya memotong rekomendasi pick. Hero lolos kalau salah satu role-nya dan salah satu lane-nya sedang nyala. Rekomendasi ban tidak ikut filter ini.</li>
-      <li>Hero dengan lebih dari satu lane tetap muncul selama salah satu lane-nya nyala. Matiin Clash Lane hanya menghilangkan hero yang lane-nya cuma Clash Lane.</li>
+      <li><strong>Pick:</strong> hero naik kalau meng-counter musuh atau jadi partner (duo / trio lengkap) hero tim kita, dan turun kalau di-counter musuh.</li>
+      <li><strong>Ban:</strong> hero naik kalau meng-counter hero tim kita atau jadi partner (duo / trio lengkap) hero musuh.</li>
+      <li>Yang dihitung cuma ada atau tidaknya hubungan. Satu hubungan dihitung sekali walaupun dicatat lebih dari satu sumber. Angka index / compatibility sumber tidak dipakai.</li>
+      <li>Kalau seri: hero yang lebih jarang kamu pick duluan (riwayat pick menyusul), lalu tier hokstats (S+ &gt; S &gt; A &gt; B &gt; C &gt; D, tanpa tier paling belakang), lalu win rate (pick) / ban rate (ban), lalu nama.</li>
+      <li>Hero yang sudah di-ban atau di-pick tidak direkomendasikan. Filter role dan lane hanya untuk rekomendasi pick; hero dengan lebih dari satu lane tetap muncul selama salah satu lane-nya nyala.</li>
     </ul>
-    <div class="note bp-cn-note"><strong>Catatan data:</strong> angka index (counter / sinergi), win rate, dan pick rate kemungkinan besar berasal dari data server CN, jadi rekomendasi ini mengikuti meta CN dan bisa berbeda dengan Global. Data juga tidak punya skor index per hero, jadi skor hanya dari counter dan sinergi terhadap hero yang dipilih.</div>
+    <div class="note bp-cn-note"><strong>Sumber data:</strong> HoK CN (王者营地: counter, di-counter, duo, trio), HoK Camp global (Pairings: duo, trio), dan <a href="https://hokstats.gg/" rel="noopener">hokstats.gg</a> (Strong against / Countered by, Partners, tier, WR/BR). Digabung oleh <code>scripts/build-banpick-merged.mjs</code>.</div>
   </section>
 </main>
-<footer class="app-footer">Sumber: data Ban &amp; Pick (companion app, dinormalisasi HoK Analyst 2026-10-10) | build dari sheet situs</footer>
-<script src="data/banpick.js?v=20261019c"></script>
+<footer class="app-footer">Sumber: HoK CN (王者营地), HoK Camp, <a href="https://hokstats.gg/" rel="noopener">hokstats.gg</a> | build dari sheet situs</footer>
+<script src="data/banpick-merged.js?v=20261110a"></script>
 <script src="data/hero-icons.js?v=20261019b"></script>
-<script src="js/banpick.js?v=20261019b"></script>
+<script src="js/banpick.js?v=20261110a"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
 <script src="js/speech.js?v=20261014a"></script>

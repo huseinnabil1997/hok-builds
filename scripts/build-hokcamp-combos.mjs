@@ -1,4 +1,4 @@
-// Bangun data/hokcamp-combos.js dari CSV duo/trio HoK Camp (halaman detail hero, tab Pairings).
+// Bangun data/hokcamp-combos.js dari CSV duo/trio HoK Camp (halaman detail hero, tab Pairings); input scripts/build-banpick-merged.mjs.
 // Pakai: node scripts/build-hokcamp-combos.mjs <duo.csv> <trio.csv> [tanggal-ambil]
 import fs from "fs";
 const [duoCsv, trioCsv, fetched = "2026-10-15"] = process.argv.slice(2);
