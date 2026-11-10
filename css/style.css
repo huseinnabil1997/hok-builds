@@ -1081,7 +1081,7 @@ body.hero-bg::before { content: ""; position: fixed; inset: 0; z-index: -2; poin
 .pro-item.predicted img { border-style: dashed; opacity: .82; }
 .pro-note { margin-top: .5rem; }
 
-/* Riwayat pick (js/pick-history.js): panel akun kecil, daftar riwayat, kartu pick bisa dipencet. */
+/* Hero yang sudah dipakai (js/pick-history.js): panel akun, daftar match, +1/-1, tambah hero. */
 .ph-auth { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; padding: 0.55rem 0.75rem; background: rgba(255,255,255,0.84); border: 1px solid var(--border); border-radius: var(--radius); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 .ph-auth [hidden], .ph-form[hidden] { display: none !important; }
 .ph-form { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
@@ -1093,11 +1093,20 @@ body.hero-bg::before { content: ""; position: fixed; inset: 0; z-index: -2; poin
 .ph-history { margin-top: 1.25rem; }
 .ph-total { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--muted); }
 .ph-base { margin: 0 0 0.4rem; font-size: 0.8rem; color: var(--muted); }
-.ph-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.4rem; }
-.ph-rows li { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.6rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; }
+.ph-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 0.4rem; }
+.ph-rows li { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.55rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; }
+.ph-rows .hero-ico { width: 1.5rem; height: 1.5rem; font-size: 0.55rem; margin-right: 0; }
 .ph-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ph-n { color: var(--muted); }
-.ph-del { padding: 0.1rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); cursor: pointer; font-size: 0.78rem; }
+.ph-n { color: var(--muted); flex: none; }
+.ph-btn, .ph-del { padding: 0.1rem 0.45rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); cursor: pointer; font-size: 0.78rem; flex: none; }
+.ph-btn:hover, .ph-del:hover { border-color: var(--accent); }
+.ph-btn[disabled], .ph-del[disabled] { opacity: 0.45; cursor: default; }
+.ph-add { margin-top: 0.75rem; }
+.ph-add-row { display: flex; gap: 0.4rem; align-items: center; }
+.ph-add-row .chip-box { flex: 1; min-width: 0; }
+.ph-add-row button { padding: 0.45rem 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); cursor: pointer; font-size: 0.85rem; flex: none; }
+.ph-add-row button:hover { border-color: var(--accent); }
+.ph-add-row button[disabled] { opacity: 0.6; cursor: default; }
 .bp-hint { margin: 0 0 0.4rem; font-size: 0.8rem; color: var(--muted); }
 .bp-card-pick { cursor: pointer; }
 .bp-card-pick:hover, .bp-card-pick:focus-visible { border-color: var(--accent); outline: none; }

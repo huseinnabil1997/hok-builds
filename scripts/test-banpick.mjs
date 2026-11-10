@@ -163,4 +163,36 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   const h = P.create(m.client, {}); await h.load();
   check("baseline kosong: info null", h.baselineInfo(), null);
 }
+{
+  // Daftar hero yang sudah dipakai: +1 manual (tanpa slot draft), -1 hanya catatan situs, usedList.
+  const m = mockClient([], {
+    baseline: [
+      { hero_slug: "lam", matches: 3, updated_at: "2026-11-10T12:00:00Z" },
+      { hero_slug: "yao", matches: 1, updated_at: "2026-11-09T12:00:00Z" },
+      { hero_slug: "ma-chao", matches: 0 },
+    ],
+  });
+  const h = P.create(m.client, {});
+  check("sebelum load: addOne diabaikan", await h.addOne("yao"), null);
+  await h.load();
+  check("usedList: hanya used>0, urut jumlah desc lalu slug", h.usedList().join(), "lam,yao");
+  check("removeOne hero cuma data Camp: tidak mengubah baseline", (await h.removeOne("lam")) + "|" + h.used("lam") + "|" + h.count("lam"), "false|3|0");
+  await h.addOne("lam");
+  check("addOne: insert source manual", m.db.inserts.map((x) => x.hero_slug + ":" + x.source).join(), "lam:manual");
+  check("addOne: used = camp + 1", h.used("lam") + "|" + h.count("lam"), "4|1");
+  await h.addOne("lam");
+  check("addOne bisa berulang di hero yang sama", h.count("lam") + "|" + h.used("lam"), "2|5");
+  check("addOne tidak membuat slot undo draft", await h.undo("lam"), false);
+  await h.addOne("zilong");
+  check("addOne hero baru masuk daftar", h.usedList().join() + "|" + h.used("zilong"), "lam,yao,zilong|1");
+  await h.removeOne("zilong");
+  check("removeOne sampai 0: hero tanpa camp hilang dari daftar", h.usedList().join() + "|" + h.used("zilong"), "lam,yao|0");
+  await h.removeOne("lam"); await h.removeOne("lam");
+  check("removeOne habis catatan: hero camp tetap, count 0", h.count("lam") + "|" + h.used("lam") + "|" + (await h.removeOne("lam")), "0|3|false");
+  await h.record("yao", "rekomendasi"); await h.addOne("yao");
+  check("addOne tidak menimpa slot rekomendasi", h.count("yao") + "|" + h.pending().join(), "2|yao");
+  await h.undo("yao");
+  check("undo rekomendasi tidak menghapus addOne manual", h.count("yao") + "|" + h.used("yao"), "1|2");
+  check("record manual tetap tidak lewat record()", (await h.record("lam", "manual")) + "|" + m.db.inserts.filter((x) => x.hero_slug === "lam" && x.source === "manual").length, "null|2");
+}
 process.exit(fail ? 1 : 0);
