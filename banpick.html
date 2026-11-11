@@ -76,17 +76,17 @@
       <li><strong>Pick:</strong> hero naik kalau meng-counter musuh atau jadi partner (duo / trio lengkap) hero tim kita, dan turun kalau di-counter musuh.</li>
       <li><strong>Ban:</strong> hero naik kalau meng-counter hero tim kita atau jadi partner (duo / trio lengkap) hero musuh.</li>
       <li>Yang dihitung cuma ada atau tidaknya hubungan. Satu hubungan dihitung sekali walaupun dicatat lebih dari satu sumber. Angka index / compatibility sumber tidak dipakai.</li>
-      <li>Kalau seri: hero yang lebih jarang kamu pakai duluan (jumlah match HoK Camp ditambah catatan di situs; perlu masuk), lalu tier hokstats (S+ &gt; S &gt; A &gt; B &gt; C &gt; D, tanpa tier paling belakang), lalu win rate (pick) / ban rate (ban), lalu nama.</li>
+      <li>Kalau seri: hero yang lebih jarang kamu pakai duluan (jumlah match HoK Camp ditambah catatan di situs; perlu masuk), lalu tier HoK Camp (S &gt; A &gt; B &gt; C, tanpa tier paling belakang), lalu win rate (pick) / ban rate (ban), lalu nama.</li>
       <li><strong>Data HoK Camp:</strong> jumlah match per hero dari Battle Record HoK Camp, disimpan per akun sebagai angka awal. Angka "dipakai Nx" di kartu = match HoK Camp + catatan di situs. Pencet kartu rekomendasi pick menambah satu catatan (perlu masuk); hero yang diketik ke tim kita tidak tercatat, dan kalau hero dari rekomendasi dilepas lagi di draft yang sama, catatannya ikut dihapus.</li>
       <li>Hero yang sudah di-ban atau di-pick tidak direkomendasikan. Filter role dan lane hanya untuk rekomendasi pick; hero dengan lebih dari satu lane tetap muncul selama salah satu lane-nya nyala.</li>
     </ul>
-    <div class="note bp-cn-note"><strong>Sumber data:</strong> HoK CN (王者营地: counter, di-counter, duo, trio), HoK Camp global (Pairings: duo, trio), dan <a href="https://hokstats.gg/" rel="noopener">hokstats.gg</a> (Strong against / Countered by, Partners, tier, WR/BR). Digabung oleh <code>scripts/build-banpick-merged.mjs</code>.</div>
+    <div class="note bp-cn-note"><strong>Sumber data:</strong> HoK CN (王者营地: counter, di-counter, duo, trio), HoK Camp global (Pairings: duo, trio; tier dan WR/BR dari <a href="https://camp.honorofkings.com/h5/app/index.html#/hero-hot-list" rel="noopener">hero hot list</a>), dan <a href="https://hokstats.gg/" rel="noopener">hokstats.gg</a> (Strong against / Countered by, Partners; WR/BR dipakai kalau hero tidak ada di hot list). Digabung oleh <code>scripts/build-banpick-merged.mjs</code>. <span id="bp-tier-meta"></span></div>
   </section>
 </main>
 <footer class="app-footer">Sumber: HoK CN (王者营地), HoK Camp, <a href="https://hokstats.gg/" rel="noopener">hokstats.gg</a> | build dari sheet situs</footer>
-<script src="data/banpick-merged.js?v=20261110f"></script>
+<script src="data/banpick-merged.js?v=20261111a"></script>
 <script src="data/hero-icons.js?v=20261019b"></script>
-<script src="js/banpick.js?v=20261110f"></script>
+<script src="js/banpick.js?v=20261111a"></script>
 <script src="data/hero-bgs.js?v=20261015b"></script>
 <script src="js/hero-bg.js?v=20261015d"></script>
 <script src="js/speech.js?v=20261014a"></script>

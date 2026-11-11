@@ -2,8 +2,9 @@
   "use strict";
 
   // Ban & Pick (satu-satunya halaman). Data: data/banpick-merged.js (scripts/build-banpick-merged.mjs),
-  // gabungan HoK CN (王者营地), HoK Camp, dan hokstats.gg. Hubungan dihitung ya/tidak, satu kali per pasangan
-  // walaupun dicatat lebih dari satu sumber. Skor hanya dipakai untuk mengurutkan; tidak ditampilkan.
+  // gabungan HoK CN (王者营地), HoK Camp, dan hokstats.gg. Tier dari HoK Camp hero hot list (S > A > B > C;
+  // tanpa tier paling belakang). Hubungan dihitung ya/tidak, satu kali per pasangan walaupun dicatat lebih
+  // dari satu sumber. Skor hanya dipakai untuk mengurutkan; tidak ditampilkan.
   //   counter(A, B): A meng-counter B (H[A].counters[B]).
   //   partner(A, B): duo / partner (H[A].partners[B], simetris).
   //   trio {K, X, Y}: dihitung kalau dua anggota lain sudah ada di tim yang dimaksud.
@@ -46,9 +47,9 @@
     var n = typeof f === "function" ? Number(f(slug)) : 0;
     return isFinite(n) && n > 0 ? n : 0;
   }
-  // Urutan: skor (tidak ditampilkan), lalu paling jarang di-pick user, lalu tier hokstats (S+ > S > A > B > C > D,
+  // Urutan: skor (tidak ditampilkan), lalu paling jarang di-pick user, lalu tier HoK Camp (S > A > B > C,
   // tanpa tier paling belakang), lalu WR (pick) / BR (ban), lalu nama.
-  var TIERS = ["S+", "S", "A", "B", "C", "D"];
+  var TIERS = ["S", "A", "B", "C"];
   function tierRank(t) { var i = TIERS.indexOf(String(t || "").toUpperCase()); return i < 0 ? TIERS.length : i; }
   function rank(rows, H, key, nm, pickCount) {
     var pc = pickCount || getPickCount;
@@ -91,6 +92,15 @@
   function isClashOnly(h) { return String(h.lane || "").split("/").map(function (p) { return p.trim(); }).join("/") === "Clash Lane"; }
 
   function taken() { return state.ban.concat(state.ally, state.enemy); }
+
+  (function showCampTierMeta() {
+    var el = document.getElementById("bp-tier-meta");
+    if (!el) return;
+    var ct = D.meta && D.meta.camp_tier;
+    var tgl = ct && ct.diperbarui;
+    el.textContent = tgl ? "Tier HoK Camp, diperbarui " + tgl : "Tier HoK Camp";
+  })();
+
 
   function card(k, sc, rk, pickable) {
     var h = H[k], used = getPickCount(k);

@@ -40,7 +40,7 @@ check("urutan: skor, tier, wr, tanpa tier belakang", B.rank(rows(), RH, "wr", nm
 check("pickCount: yang jarang di-pick duluan sebelum tier", B.rank(rows(), RH, "wr", nm, (s) => ({ y: 5, x: 1 })[s] || 0).map((r) => r.k).join(","), "z,w,x,y");
 check("pickCount tidak mengalahkan skor", B.rank(rows(), RH, "wr", nm, (s) => (s === "z" ? 99 : 0))[0].k, "z");
 check("seri total: nama", B.rank([{ k: "b", s: { total: 1 } }, { k: "a", s: { total: 1 } }], { a: {}, b: {} }, "wr", nm).map((r) => r.k).join(","), "a,b");
-check("tierRank S+ < S < D < tanpa tier", [B.tierRank("S+"), B.tierRank("S"), B.tierRank("D"), B.tierRank(null)].join(","), "0,1,5,6");
+check("tierRank S < A < C < tanpa tier (S+ dan D dianggap tanpa tier)", [B.tierRank("S"), B.tierRank("A"), B.tierRank("C"), B.tierRank(null), B.tierRank("S+"), B.tierRank("D")].join(","), "0,1,3,4,4,4");
 
 // Data gabungan nyata.
 const w = {}; new Function("window", fs.readFileSync("data/banpick-merged.js", "utf8"))(w);
@@ -50,7 +50,16 @@ check("referensi counter/partner/trio dikenal", slugs.every((k) => Object.keys(M
 check("partner simetris", slugs.every((k) => Object.keys(MH[k].partners).every((s) => MH[s].partners[k])), true);
 check("tidak ada slug alias tersisa (zhu-bajie, annette, shieldun, flowborn-mage)", ["zhu-bajie", "annette", "shieldun", "flowborn-mage"].some((s) => MH[s]), false);
 check("tidak ada dua hero dengan nama sama", new Set(Object.values(MH).map((h) => h.name)).size, slugs.length);
-check("flowborn punya tier hokstats", !!(MH.flowborn && MH.flowborn.tier && (MH.flowborn.src || []).indexOf("hs") >= 0), true);
+check("tier Camp: Angela S", MH.angela && MH.angela.tier, "S");
+check("tier Camp: Dunshan S", MH.dunshan && MH.dunshan.tier, "S");
+check("tier Camp: Flowborn (Mage) slug flowborn C", MH.flowborn && (MH.flowborn.tier + "|" + MH.flowborn.name), "C|Flowborn (Mage)");
+check("tier Camp: Athena C", MH.athena && MH.athena.tier, "C");
+check("hero tak ada di hot list tanpa tier (ma-chao)", MH["ma-chao"] && MH["ma-chao"].tier, null);
+check("WR/BR Angela dari Camp (bukan hokstats 51.7)", MH.angela.wr + "|" + MH.angela.br, "51.51|1.11");
+const CT = {}; new Function("window", fs.readFileSync("data/hokcamp-tier.js", "utf8"))(CT);
+const ctm = CT.HOKCAMP_TIER.meta, ctt = CT.HOKCAMP_TIER.tier;
+check("hot list: tanpa nama tak cocok, jumlah = isi", ctm.tidak_cocok.length + "|" + ctm.jumlah, "0|" + Object.keys(ctt).length);
+check("merged meta camp_tier tanggal", M.meta.camp_tier && M.meta.camp_tier.diperbarui, ctm.diperbarui);
 check("hero cuma hokstats tetap ada (lorion)", !!MH.lorion, true);
 check("hero cuma CN tetap ada (ma-chao)", !!MH["ma-chao"], true);
 const pc = slugs.reduce((n, k) => n + Object.keys(MH[k].counters).length, 0);
@@ -208,6 +217,10 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   check("index + banpick: semua aset lokal ada", srcs(idx).concat(srcs(bp)).every((f) => fs.existsSync(f)), true);
   const ver = (html, f) => (html.match(new RegExp(f.replace(/[.\/]/g, "\\$&") + "\\?v=(\\w+)")) || [])[1];
   check("versi pick-history.js + style.css sama di dua halaman (20261110g)", [ver(idx, "js/pick-history.js"), ver(bp, "js/pick-history.js"), ver(idx, "css/style.css"), ver(bp, "css/style.css")].join(), "20261110g,20261110g,20261110g,20261110g");
-  check("teks halaman tanpa em dash", /\u2014|&mdash;/.test(idx + bp + fs.readFileSync("js/pick-history.js", "utf8")), false);
+  check("teks halaman tanpa em dash", /\u2014|&mdash;/.test(idx + bp + fs.readFileSync("js/pick-history.js", "utf8") + fs.readFileSync("js/banpick.js", "utf8")), false);
+  check("banpick: teks tier HoK Camp, bukan tier hokstats", /tier HoK Camp/.test(bp) && /S &gt; A &gt; B &gt; C/.test(bp) && !/tier hokstats/i.test(bp), true);
+  check("banpick: info Tier HoK Camp ada tempatnya", /id="bp-tier-meta"/.test(bp), true);
+  check("versi banpick-merged.js + banpick.js 20261111a", [ver(idx, "data/banpick-merged.js"), ver(bp, "data/banpick-merged.js"), ver(bp, "js/banpick.js")].join(), "20261111a,20261111a,20261111a");
 }
+
 process.exit(fail ? 1 : 0);

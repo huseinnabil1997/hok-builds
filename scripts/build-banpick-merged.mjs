@@ -1,15 +1,23 @@
-// Bangun data/banpick-merged.js (window.BANPICK_DATA) untuk banpick.html: gabungan 3 sumber yang sudah ada di repo.
+// Bangun data/banpick-merged.js (window.BANPICK_DATA) untuk banpick.html: gabungan sumber yang sudah ada di repo.
 //   cn  = data/banpick.json          -> HoK CN, 王者营地 (counters, countered_by, duo, trio; role, lane, status build)
 //   camp = data/hokcamp-combos.js    -> HoK Camp global, camp.honorofkings.com Pairings (duo, trio; tanpa counter)
-//   hs  = data/hokstats-banpick.js   -> hokstats.gg (Strong against / Countered by, Partners; tier, WR/PR/BR)
-// Tidak ada data baru: hanya digabung dan di-dedup per slug. Angka index / compatibility dibuang (ya/tidak saja).
-// Pakai: node scripts/build-banpick-merged.mjs
+//   hs  = data/hokstats-banpick.js   -> hokstats.gg (Strong against / Countered by, Partners)
+//   tier = data/hokcamp-tier.js      -> HoK Camp hero hot list (tier S/A/B/C, WR/PR/BR). Jalankan dulu
+//                                      scripts/build-camp-tier.mjs. Hero yang tidak ada di hot list = tanpa tier.
+//                                      WR/BR untuk tiebreak: angka Camp kalau ada, kalau tidak fallback ke hokstats.
+// Tidak ada data baru selain file sumber di atas. Angka index / compatibility dibuang (ya/tidak saja).
+// Pakai: node scripts/build-camp-tier.mjs <csv> [tanggal] && node scripts/build-banpick-merged.mjs
 import fs from "fs";
 
 const load = (file, key) => { const w = {}; new Function("window", fs.readFileSync(file, "utf8"))(w); return w[key]; };
 const CN = JSON.parse(fs.readFileSync("data/banpick.json", "utf8"));
 const CAMP = load("data/hokcamp-combos.js", "HOKCAMP_COMBOS");
 const HS = load("data/hokstats-banpick.js", "HOKSTATS");
+if (!fs.existsSync("data/hokcamp-tier.js")) {
+  console.error("Tidak ada data/hokcamp-tier.js. Jalankan dulu: node scripts/build-camp-tier.mjs <csv> [tanggal-update]");
+  process.exit(1);
+}
+const CAMP_TIER = load("data/hokcamp-tier.js", "HOKCAMP_TIER");
 
 // Slug sumber -> slug repo (sama dengan aturan yang sudah dipakai): annette -> anette, zhu-bajie -> ata, shieldun -> dunshan, flowborn-mage -> flowborn.
 const ALIAS = { annette: "anette", "zhu-bajie": "ata", shieldun: "dunshan", "flowborn-mage": "flowborn" };
@@ -33,8 +41,18 @@ for (const [raw, h] of Object.entries(HS.heroes)) {
   if (!o.name) o.name = h.name;
   if (!o.role) o.role = h.role || "";
   if (!o.lane) o.lane = h.lane || "";
-  Object.assign(o, { tier: h.tier || null, wr: h.wr ?? null, pr: h.pr ?? null, br: h.br ?? null });
+  // WR/BR cadangan dari hokstats; tier tidak diambil dari sini (lihat overlay Camp di bawah).
+  Object.assign(o, { wr: h.wr ?? null, pr: h.pr ?? null, br: h.br ?? null });
   markSrc(k, "hs");
+}
+// Tier hanya dari HoK Camp hero hot list. Hero yang tidak ada di list = tanpa tier
+// (urut paling belakang saat tiebreak). WR/BR Camp menimpa cadangan hokstats kalau ada.
+for (const [raw, t] of Object.entries(CAMP_TIER.tier || {})) {
+  const k = S(raw), o = ensure(k);
+  o.tier = t.tier || null;
+  if (t.wr != null) o.wr = t.wr;
+  if (t.pr != null) o.pr = t.pr;
+  if (t.br != null) o.br = t.br;
 }
 // Chicha main Clash dan Farm; data CN cuma menulis Clash Lane (override yang sudah ada di js/banpick*.js lama).
 if (heroes.chicha) {
@@ -96,9 +114,11 @@ const meta = {
   sumber: {
     cn: "HoK CN (王者营地): data/banpick.json, " + (CN.meta && CN.meta.catatan ? CN.meta.catatan : ""),
     camp: "HoK Camp global: data/hokcamp-combos.js, " + CAMP.meta.sumber + ", diambil " + CAMP.meta.diambil,
-    hs: "hokstats.gg: data/hokstats-banpick.js, diambil " + String(HS.meta.diambil).slice(0, 10),
+    hs: "hokstats.gg: data/hokstats-banpick.js, diambil " + String(HS.meta.diambil).slice(0, 10) + " (relasi; WR/BR cadangan kalau hero tidak ada di hot list)",
+    camp_tier: "HoK Camp hero hot list: data/hokcamp-tier.js, " + (CAMP_TIER.meta && CAMP_TIER.meta.sumber ? CAMP_TIER.meta.sumber : "") + ", filter " + (CAMP_TIER.meta && CAMP_TIER.meta.filter ? CAMP_TIER.meta.filter : "") + ", diperbarui " + (CAMP_TIER.meta && CAMP_TIER.meta.diperbarui ? CAMP_TIER.meta.diperbarui : "(tidak diisi)"),
   },
   alias: ALIAS,
+  camp_tier: CAMP_TIER.meta || {},
   hero: Object.keys(out).length,
   hero_per_sumber: ["cn", "camp", "hs"].reduce((o, s) => ((o[s] = Object.values(out).filter((h) => h.src.indexOf(s) >= 0).length), o), {}),
   counter: tally(counters), partner: tally(partners), trio: tally(trios),
