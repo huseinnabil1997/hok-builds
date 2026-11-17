@@ -55,7 +55,7 @@ check("tier Camp: Dunshan S", MH.dunshan && MH.dunshan.tier, "S");
 check("tier Camp: Flowborn (Mage) slug flowborn C", MH.flowborn && (MH.flowborn.tier + "|" + MH.flowborn.name), "C|Flowborn (Mage)");
 check("tier Camp: Athena C", MH.athena && MH.athena.tier, "C");
 check("hero tak ada di hot list tanpa tier (ma-chao)", MH["ma-chao"] && MH["ma-chao"].tier, null);
-check("WR/BR Angela dari Camp (bukan hokstats 51.7)", MH.angela.wr + "|" + MH.angela.br, "51.51|1.11");
+check("WR/BR Angela dari Camp (bukan hokstats 51.7)", MH.angela.wr + "|" + MH.angela.br, "51.38|1.12");
 const CT = {}; new Function("window", fs.readFileSync("data/hokcamp-tier.js", "utf8"))(CT);
 const ctm = CT.HOKCAMP_TIER.meta, ctt = CT.HOKCAMP_TIER.tier;
 check("hot list: tanpa nama tak cocok, jumlah = isi", ctm.tidak_cocok.length + "|" + ctm.jumlah, "0|" + Object.keys(ctt).length);
@@ -220,7 +220,7 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   check("teks halaman tanpa em dash", /\u2014|&mdash;/.test(idx + bp + fs.readFileSync("js/pick-history.js", "utf8") + fs.readFileSync("js/banpick.js", "utf8")), false);
   check("banpick: teks tier HoK Camp, bukan tier hokstats", /tier HoK Camp/.test(bp) && /S &gt; A &gt; B &gt; C/.test(bp) && !/tier hokstats/i.test(bp), true);
   check("banpick: info Tier HoK Camp ada tempatnya", /id="bp-tier-meta"/.test(bp), true);
-  check("versi banpick-merged.js + banpick.js 20261111a", [ver(idx, "data/banpick-merged.js"), ver(bp, "data/banpick-merged.js"), ver(bp, "js/banpick.js")].join(), "20261111a,20261111a,20261111a");
+  check("versi banpick-merged.js + banpick.js 20261116a", [ver(idx, "data/banpick-merged.js"), ver(bp, "data/banpick-merged.js"), ver(bp, "js/banpick.js")].join(), "20261116a,20261116a,20261116a");
 }
 
 process.exit(fail ? 1 : 0);
